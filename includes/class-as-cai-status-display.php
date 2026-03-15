@@ -175,12 +175,19 @@ class AS_CAI_Status_Display {
 			}
 		}
 
-		// Count sold seats via WooCommerce orders.
-		$sold_seats = 0;
-		if ( method_exists( $product, 'get_taken_seats' ) ) {
+		// Count sold seats via WooCommerce orders — only valid statuses.
+		// Stachethemes' get_taken_seats() counts ALL statuses including refunded
+		// and cancelled, leading to sold > total. We count accurately ourselves.
+		$sold_seats = self::count_sold_seats_accurate( $product_id );
+
+		// Fallback: if our count returns 0, try Stachethemes but cap at total.
+		if ( 0 === $sold_seats && method_exists( $product, 'get_taken_seats' ) ) {
 			$taken = $product->get_taken_seats();
 			$sold_seats = is_array( $taken ) ? count( $taken ) : 0;
 		}
+
+		// Safety: never exceed total seats.
+		$sold_seats = min( $sold_seats, $total_seats );
 
 		// Count reserved seats (in carts) from our reservation system.
 		$reserved_count = 0;
@@ -244,6 +251,121 @@ class AS_CAI_Status_Display {
 		) );
 
 		return (int) $count;
+	}
+
+	/**
+	 * Count sold seats accurately from WooCommerce orders.
+	 *
+	 * Unlike Stachethemes' get_taken_seats(), this method only counts orders
+	 * with valid (non-refunded, non-cancelled, non-failed) statuses.
+	 * This prevents the "38 sold out of 37" bug when orders are refunded.
+	 *
+	 * @since 1.3.74
+	 * @param int $product_id Product ID.
+	 * @return int Number of actually sold seats.
+	 */
+	private static function count_sold_seats_accurate( $product_id ) {
+		// Valid statuses where seats are actually taken.
+		$valid_statuses = array( 'wc-processing', 'wc-completed', 'wc-on-hold', 'wc-pending' );
+
+		$orders = wc_get_orders( array(
+			'limit'   => -1,
+			'status'  => $valid_statuses,
+			'return'  => 'ids',
+		) );
+
+		$sold_count = 0;
+		$counted_seats = array();
+
+		foreach ( $orders as $order_id ) {
+			$order = wc_get_order( $order_id );
+			if ( ! $order ) {
+				continue;
+			}
+
+			foreach ( $order->get_items() as $item ) {
+				$item_product_id = $item->get_product_id();
+				if ( (int) $item_product_id !== (int) $product_id ) {
+					continue;
+				}
+
+				// Try to get specific seat IDs to avoid double-counting.
+				$seat_meta = $item->get_meta( '_stachethemes_seat_planner_data', true );
+				if ( ! empty( $seat_meta ) ) {
+					$seat_ids = self::extract_seat_ids_from_meta( $seat_meta );
+					foreach ( $seat_ids as $seat_id ) {
+						if ( ! in_array( $seat_id, $counted_seats, true ) ) {
+							$counted_seats[] = $seat_id;
+							$sold_count++;
+						}
+					}
+				} else {
+					// No seat data — count by quantity.
+					$sold_count += max( 1, $item->get_quantity() );
+				}
+			}
+		}
+
+		return $sold_count;
+	}
+
+	/**
+	 * Extract seat IDs from Stachethemes meta data.
+	 *
+	 * @since 1.3.74
+	 * @param mixed $seat_meta Seat meta data (object, array, or JSON string).
+	 * @return array Array of seat ID strings.
+	 */
+	private static function extract_seat_ids_from_meta( $seat_meta ) {
+		$ids = array();
+
+		// Handle JSON string.
+		if ( is_string( $seat_meta ) ) {
+			$decoded = json_decode( $seat_meta, true );
+			if ( json_last_error() === JSON_ERROR_NONE ) {
+				$seat_meta = $decoded;
+			} else {
+				return array( $seat_meta ); // Treat the string itself as an ID.
+			}
+		}
+
+		// Single object.
+		if ( is_object( $seat_meta ) ) {
+			$seat_meta = (array) $seat_meta;
+		}
+
+		// Single seat array.
+		if ( is_array( $seat_meta ) && isset( $seat_meta['seatId'] ) ) {
+			return array( (string) $seat_meta['seatId'] );
+		}
+		if ( is_array( $seat_meta ) && isset( $seat_meta['label'] ) ) {
+			return array( (string) $seat_meta['label'] );
+		}
+		if ( is_array( $seat_meta ) && isset( $seat_meta['seat'] ) ) {
+			return array( (string) $seat_meta['seat'] );
+		}
+
+		// Array of seats.
+		if ( is_array( $seat_meta ) ) {
+			foreach ( $seat_meta as $entry ) {
+				if ( is_object( $entry ) ) {
+					$entry = (array) $entry;
+				}
+				if ( is_array( $entry ) ) {
+					if ( isset( $entry['seatId'] ) ) {
+						$ids[] = (string) $entry['seatId'];
+					} elseif ( isset( $entry['label'] ) ) {
+						$ids[] = (string) $entry['label'];
+					} elseif ( isset( $entry['seat'] ) ) {
+						$ids[] = (string) $entry['seat'];
+					}
+				} elseif ( is_string( $entry ) || is_numeric( $entry ) ) {
+					$ids[] = (string) $entry;
+				}
+			}
+		}
+
+		return $ids;
 	}
 
 	/**

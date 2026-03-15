@@ -393,12 +393,20 @@ class AS_CAI_Frontend {
 		
 		$should_hide = false;
 
-		// Hide if not available
+		// Hide if not available (timer hasn't expired yet).
 		if ( ! $availability['is_available'] ) {
 			$should_hide = true;
 		}
-		
-		// Hide if already in cart (v1.3.6 - prevent duplicate bookings)
+
+		// v1.3.74: Hide if sold out (no available seats).
+		if ( ! $should_hide ) {
+			$status_data = AS_CAI_Status_Display::get_detailed_availability_status( $product_id );
+			if ( $status_data && 'sold_out' === $status_data['status'] ) {
+				$should_hide = true;
+			}
+		}
+
+		// Hide if already in cart (v1.3.6 - prevent duplicate bookings).
 		if ( ! $should_hide && WC()->cart ) {
 			foreach ( WC()->cart->get_cart() as $cart_item ) {
 				if ( $cart_item['product_id'] == $product_id ) {

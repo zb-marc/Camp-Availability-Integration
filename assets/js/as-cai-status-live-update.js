@@ -128,6 +128,37 @@
 		if (currentClass !== newClass) {
 			$box.removeClass(statusClasses.join(' ')).addClass(newClass);
 			self.showStatusChangeAlert(data.status);
+
+			// Update header text based on new status.
+			var statusTitles = {
+				'available':     'Sofort buchbar',
+				'limited':       'Nur noch wenige Parzellen',
+				'critical':      'Letzte Parzellen!',
+				'reserved_full': 'Aktuell alle Parzellen reserviert',
+				'sold_out':      'Ausgebucht'
+			};
+			var statusIcons = {
+				'available':     '\u2713',
+				'limited':       '\u26A0',
+				'critical':      '\u26A1',
+				'reserved_full': '\uD83D\uDD50',
+				'sold_out':      '\u2715'
+			};
+			if (statusTitles[data.status]) {
+				$box.find('.status-title').text(statusTitles[data.status]);
+				$box.find('.status-icon').text(statusIcons[data.status] || '');
+			}
+
+			// Hide/show "Parzelle auswählen" button based on availability.
+			var $seatWrapper = $('.stachesepl-single-add-to-cart-button-wrapper');
+			var $seatRoot = $('.stachesepl-add-to-cart-button-root');
+			if (data.status === 'sold_out') {
+				$seatWrapper.hide();
+				$seatRoot.hide();
+			} else {
+				$seatWrapper.show();
+				$seatRoot.show();
+			}
 		}
 
 		// Update timer if present.

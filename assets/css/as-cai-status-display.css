@@ -1,23 +1,30 @@
 /**
- * Status Display Styles
+ * Status Display Styles — Frontend (Template-Farben)
+ *
+ * Uses the site's Elementor/theme color system:
+ * Primary: #B19E63 (Gold), Secondary: #54595F, Text: #F8F8F8, Accent: #25282B
  *
  * @package AS_Camp_Availability_Integration
  * @since   1.3.59
+ * @updated 1.3.74
  */
 
 /* ── Status Box Base ─────────────────────────────────────────────── */
 
 .as-cai-status-box {
 	background: #fff;
-	border-radius: 12px;
+	border-radius: 14px;
 	padding: 24px;
 	margin: 20px 0;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-	transition: all 0.3s ease;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+	border: 1px solid #e4e4e7;
+	transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+	font-family: inherit;
+	-webkit-font-smoothing: antialiased;
 }
 
 .as-cai-status-box.updating {
-	opacity: 0.7;
+	opacity: 0.6;
 	pointer-events: none;
 }
 
@@ -26,93 +33,99 @@
 .status-header {
 	display: flex;
 	align-items: center;
-	gap: 12px;
-	margin-bottom: 16px;
+	gap: 10px;
+	margin-bottom: 14px;
 }
 
 .status-icon {
-	font-size: 32px;
+	font-size: 28px;
 	line-height: 1;
 }
 
 .status-title {
-	font-size: 20px;
-	font-weight: 600;
+	font-size: 18px;
+	font-weight: 700;
 	margin: 0;
+	color: #25282B;
+	letter-spacing: -0.02em;
 }
 
 /* ── Availability Details ────────────────────────────────────────── */
 
 .status-details {
-	margin-bottom: 20px;
+	margin-bottom: 16px;
 }
 
 .availability-main {
-	font-size: 18px;
-	margin-bottom: 12px;
+	font-size: 16px;
+	margin-bottom: 10px;
 }
 
 .availability-main strong {
 	font-weight: 700;
-	color: #2c3e50;
+	color: #25282B;
 }
 
 .availability-breakdown {
 	display: flex;
-	gap: 12px;
-	margin-bottom: 16px;
+	gap: 8px;
+	margin-bottom: 14px;
 	flex-wrap: wrap;
 }
 
 .reserved-badge,
 .sold-badge {
-	display: inline-block;
-	padding: 4px 12px;
-	border-radius: 16px;
-	font-size: 13px;
-	font-weight: 500;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 3px 10px;
+	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.01em;
 }
 
 .reserved-badge {
-	background: #fff3cd;
-	color: #856404;
+	background: rgba(177, 158, 99, 0.12);
+	color: #8a7a45;
 }
 
 .sold-badge {
-	background: #d4edda;
-	color: #155724;
+	background: rgba(177, 158, 99, 0.12);
+	color: #8a7a45;
 }
 
 /* ── Progress Bar ────────────────────────────────────────────────── */
 
 .availability-progress {
-	margin-bottom: 16px;
+	margin-bottom: 14px;
 }
 
 .progress-bar {
-	height: 24px;
-	background: #e9ecef;
-	border-radius: 12px;
+	height: 8px;
+	background: #e4e4e7;
+	border-radius: 4px;
 	overflow: hidden;
 	display: flex;
-	margin-bottom: 8px;
+	margin-bottom: 6px;
 }
 
 .progress-available {
-	background: linear-gradient(90deg, #28a745, #20c997);
-	transition: width 0.5s ease;
+	background: #B19E63;
+	transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+	border-radius: 4px;
 }
 
 .progress-reserved {
-	background: linear-gradient(90deg, #ffc107, #fd7e14);
-	transition: width 0.5s ease;
+	background: rgba(177, 158, 99, 0.5);
+	transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .progress-labels {
 	display: flex;
 	justify-content: space-between;
-	font-size: 13px;
-	color: #6c757d;
+	font-size: 12px;
+	color: #54595F;
 }
 
 .label-available {
@@ -122,29 +135,30 @@
 /* ── Reservation Timer ───────────────────────────────────────────── */
 
 .reservation-timer {
-	background: #f8f9fa;
-	border-left: 4px solid #ffc107;
-	padding: 12px 16px;
-	border-radius: 6px;
+	background: rgba(177, 158, 99, 0.06);
+	border: 1px solid rgba(177, 158, 99, 0.15);
+	border-left: 3px solid #B19E63;
+	padding: 12px 14px;
+	border-radius: 8px;
 	margin-bottom: 12px;
 }
 
 .timer-label {
 	display: block;
-	font-size: 13px;
-	color: #6c757d;
+	font-size: 12px;
+	color: #54595F;
 	margin-bottom: 4px;
 }
 
 .timer-countdown {
-	font-size: 20px;
+	font-size: 18px;
 	font-weight: 700;
-	color: #fd7e14;
-	font-family: 'Courier New', monospace;
+	color: #B19E63;
+	font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
 }
 
 .timer-countdown.expired {
-	color: #28a745;
+	color: #6dab56;
 }
 
 /* ── Urgency Badge ───────────────────────────────────────────────── */
@@ -153,17 +167,19 @@
 	display: flex;
 	align-items: center;
 	gap: 8px;
-	padding: 12px;
-	background: #fff3cd;
+	padding: 10px 14px;
+	background: rgba(177, 158, 99, 0.08);
+	border: 1px solid rgba(177, 158, 99, 0.15);
 	border-radius: 8px;
 	font-weight: 600;
-	color: #856404;
+	font-size: 13px;
+	color: #8a7a45;
 }
 
 .pulse-dot {
 	width: 8px;
 	height: 8px;
-	background: #dc3545;
+	background: #B19E63;
 	border-radius: 50%;
 	animation: as-cai-pulse 1.5s ease-in-out infinite;
 }
@@ -176,30 +192,60 @@
 /* ── Status-Specific Styles ──────────────────────────────────────── */
 
 .status-available {
-	border-left: 4px solid #28a745;
+	border-left: 3px solid #B19E63;
+}
+
+.status-available .status-title {
+	color: #B19E63;
 }
 
 .status-limited {
-	border-left: 4px solid #ffc107;
+	border-left: 3px solid #B19E63;
+}
+
+.status-limited .status-title {
+	color: #8a7a45;
 }
 
 .status-critical {
-	border-left: 4px solid #dc3545;
+	border-left: 3px solid #c4433e;
 	animation: as-cai-subtle-pulse 2s ease-in-out infinite;
 }
 
+.status-critical .status-title {
+	color: #c4433e;
+}
+
 @keyframes as-cai-subtle-pulse {
-	0%, 100% { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
-	50% { box-shadow: 0 4px 16px rgba(220, 53, 69, 0.3); }
+	0%, 100% { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); }
+	50% { box-shadow: 0 2px 12px rgba(196, 67, 62, 0.15); }
 }
 
 .status-reserved-full {
-	border-left: 4px solid #6c757d;
+	border-left: 3px solid #54595F;
+}
+
+.status-reserved-full .status-title {
+	color: #54595F;
 }
 
 .status-sold-out {
-	border-left: 4px solid #343a40;
-	opacity: 0.9;
+	border-left: 3px solid #c4433e;
+}
+
+.status-sold-out .status-title {
+	color: #c4433e;
+	font-weight: 700;
+}
+
+.status-sold-out .status-icon {
+	color: #c4433e;
+}
+
+/* Hide "Parzelle auswählen" button when sold out (CSS sibling selector) */
+.status-sold-out ~ .stachesepl-single-add-to-cart-button-wrapper,
+.status-sold-out ~ .stachesepl-add-to-cart-button-root {
+	display: none !important;
 }
 
 /* ── Action Buttons ──────────────────────────────────────────────── */
@@ -211,52 +257,68 @@
 .as-cai-waitlist-button,
 .as-cai-notify-button,
 .as-cai-refresh-button {
-	padding: 12px 24px;
+	padding: 9px 18px;
 	border: none;
 	border-radius: 8px;
-	font-size: 16px;
+	font-size: 14px;
 	font-weight: 600;
 	cursor: pointer;
-	transition: all 0.3s ease;
-	margin-right: 8px;
-	margin-bottom: 8px;
+	transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+	margin-right: 6px;
+	margin-bottom: 6px;
+	font-family: inherit;
+	letter-spacing: -0.01em;
+}
+
+.as-cai-waitlist-button:hover,
+.as-cai-notify-button:hover,
+.as-cai-refresh-button:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.as-cai-waitlist-button:active,
+.as-cai-notify-button:active,
+.as-cai-refresh-button:active {
+	transform: translateY(0);
 }
 
 .as-cai-waitlist-button {
-	background: #6c757d;
+	background: #B19E63;
 	color: #fff;
 }
 
 .as-cai-waitlist-button:hover {
-	background: #5a6268;
+	background: #9d8c55;
 }
 
 .as-cai-notify-button {
-	background: #007bff;
+	background: #B19E63;
 	color: #fff;
 }
 
 .as-cai-notify-button:hover {
-	background: #0056b3;
+	background: #9d8c55;
 }
 
 .as-cai-refresh-button {
-	background: #f8f9fa;
-	color: #495057;
-	border: 1px solid #dee2e6;
+	background: white;
+	color: #54595F;
+	border: 1px solid #d4d4d8;
 }
 
 .as-cai-refresh-button:hover {
-	background: #e9ecef;
+	background: #fafafa;
+	border-color: #a1a1aa;
 }
 
 /* ── Status Meta ─────────────────────────────────────────────────── */
 
 .status-meta {
-	padding-top: 12px;
-	border-top: 1px solid #e9ecef;
-	font-size: 12px;
-	color: #6c757d;
+	padding-top: 10px;
+	border-top: 1px solid #e4e4e7;
+	font-size: 11px;
+	color: #a1a1aa;
 }
 
 .auto-refresh-indicator {
@@ -264,7 +326,7 @@
 }
 
 .auto-refresh-indicator.pulse {
-	color: #28a745;
+	color: #B19E63;
 	font-weight: 600;
 }
 
@@ -274,16 +336,18 @@
 	position: fixed;
 	top: 20px;
 	right: 20px;
-	padding: 16px 24px;
-	background: #fff;
-	border-radius: 8px;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+	padding: 12px 18px;
+	background: #25282B;
+	color: #F8F8F8;
+	border-radius: 10px;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 	z-index: 9999;
 	opacity: 0;
-	transform: translateX(100%);
-	transition: all 0.3s ease;
-	font-size: 14px;
+	transform: translateX(120%);
+	transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+	font-size: 13px;
 	font-weight: 600;
+	font-family: inherit;
 }
 
 .as-cai-toast.show {
@@ -292,23 +356,23 @@
 }
 
 .toast-available {
-	border-left: 4px solid #28a745;
+	border-left: 3px solid #B19E63;
 }
 
 .toast-limited {
-	border-left: 4px solid #ffc107;
+	border-left: 3px solid #B19E63;
 }
 
 .toast-critical {
-	border-left: 4px solid #dc3545;
+	border-left: 3px solid #c4433e;
 }
 
 .toast-reserved-full {
-	border-left: 4px solid #6c757d;
+	border-left: 3px solid #54595F;
 }
 
 .toast-sold-out {
-	border-left: 4px solid #343a40;
+	border-left: 3px solid #c4433e;
 }
 
 /* ── Mobile Responsive ───────────────────────────────────────────── */
@@ -316,19 +380,20 @@
 @media (max-width: 768px) {
 	.as-cai-status-box {
 		padding: 16px;
+		border-radius: 10px;
 	}
 
 	.status-title {
-		font-size: 18px;
+		font-size: 16px;
 	}
 
 	.availability-main {
-		font-size: 16px;
+		font-size: 14px;
 	}
 
 	.availability-breakdown {
 		flex-direction: column;
-		gap: 8px;
+		gap: 6px;
 	}
 
 	.as-cai-toast {

@@ -7,6 +7,26 @@ und dieses Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [1.3.74] - 2026-03-15
+
+### Fixed
+- **Verfügbarkeits-Zählung: Erstattete/stornierte Bestellungen werden nicht mehr als "verkauft" gezählt**
+  - Neue Methode `count_sold_seats_accurate()` zählt nur gültige Bestellstatus (processing, completed, on-hold, pending)
+  - Behebt Bug: "38 verkauft" bei nur 37 Plätzen (erstattete Bestellung wurde mitgezählt)
+  - Safety-Cap: `sold_seats` kann nie `total_seats` überschreiten
+  - Seat-IDs werden dedupliziert um Doppelzählung zu vermeiden
+- **"Parzelle auswählen"-Button wird bei Ausverkauf versteckt**
+  - Server-seitig: `maybe_hide_seat_planner_button()` prüft jetzt auch sold_out Status
+  - Client-seitig: Live-Update JS versteckt/zeigt Button bei Statuswechsel
+  - CSS-Fallback: Sibling-Selector versteckt Button neben sold_out Box
+
+### Changed
+- **Status-Box auf Template-Farben umgestellt**
+  - Primary Gold `#B19E63`, Secondary `#54595F`, Accent `#25282B`
+  - Progress-Bar, Badges, Buttons, Toasts in Website-Farben
+  - "Ausgebucht" jetzt rot und gut sichtbar statt fast unsichtbar
+  - Live-Update aktualisiert jetzt auch Header-Text und Icon bei Statuswechsel
+
 ## [1.3.73] - 2026-03-15
 
 ### Changed
