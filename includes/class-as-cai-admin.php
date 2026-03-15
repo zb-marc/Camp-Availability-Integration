@@ -50,6 +50,7 @@ class AS_CAI_Admin {
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'wp_ajax_as_cai_clear_reservations', array( $this, 'ajax_clear_reservations' ) );
 		add_action( 'wp_ajax_as_cai_get_stats', array( $this, 'ajax_get_stats' ) );
+		add_action( 'wp_ajax_as_cai_check_update', array( $this, 'ajax_check_update' ) );
 	}
 
 	/**
@@ -672,13 +673,96 @@ class AS_CAI_Admin {
 			<div class="as-cai-settings-row" style="align-items: center;">
 				<div class="as-cai-settings-label">
 					<strong><?php printf( esc_html__( 'Installierte Version: %s', 'as-camp-availability-integration' ), esc_html( AS_CAI_VERSION ) ); ?></strong>
-					<p><?php esc_html_e( 'Prüft ob eine neue Version auf GitHub verfügbar ist.', 'as-camp-availability-integration' ); ?></p>
+					<div id="as-cai-update-result" style="margin-top: 8px;"></div>
 				</div>
-				<a href="<?php echo esc_url( admin_url( 'update-core.php?force-check=1' ) ); ?>" class="as-cai-btn as-cai-btn-primary" style="white-space: nowrap;">
+				<button type="button" id="as-cai-check-update-btn" class="as-cai-btn as-cai-btn-primary" style="white-space: nowrap;">
 					<i class="fas fa-sync-alt"></i>
 					<?php esc_html_e( 'Auf Update prüfen', 'as-camp-availability-integration' ); ?>
-				</a>
+				</button>
 			</div>
+			<script>
+			(function() {
+				var btn = document.getElementById('as-cai-check-update-btn');
+				var result = document.getElementById('as-cai-update-result');
+				if (!btn) return;
+
+				function escHtml(s) {
+					var d = document.createElement('div');
+					d.textContent = s;
+					return d.innerHTML;
+				}
+
+				btn.addEventListener('click', function() {
+					btn.disabled = true;
+					btn.querySelector('i').className = 'fas fa-spinner fa-spin';
+					result.innerHTML = '<span style="color:var(--as-gray-500);"><i class="fas fa-spinner fa-spin"></i> Prüfe auf GitHub...</span>';
+					fetch(asCaiAdmin.ajaxUrl, {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+						body: new URLSearchParams({
+							action: 'as_cai_check_update',
+							nonce: asCaiAdmin.nonce
+						})
+					})
+					.then(function(r) { return r.json(); })
+					.then(function(data) {
+						btn.disabled = false;
+						btn.querySelector('i').className = 'fas fa-sync-alt';
+						if (!data.success) {
+							result.innerHTML = '<span style="color:var(--as-danger);">' +
+								'<i class="fas fa-exclamation-triangle"></i> ' + escHtml(data.data.message || 'Unbekannter Fehler') + '</span>';
+							return;
+						}
+						var d = data.data;
+						var html = '';
+
+						if (d.update_available) {
+							html += '<span style="color:var(--as-success);font-weight:600;">' +
+								'<i class="fas fa-arrow-circle-up"></i> Version ' + escHtml(d.latest_version) + ' verfügbar!</span>';
+							html += '<br><a href="' + escHtml(d.update_url) + '" class="as-cai-btn as-cai-btn-primary" style="margin-top:8px;display:inline-block;">' +
+								'<i class="fas fa-download"></i> Jetzt aktualisieren</a>';
+						} else {
+							html += '<span style="color:var(--as-success);font-weight:600;">' +
+								'<i class="fas fa-check-circle"></i> Neueste Version (' + escHtml(d.latest_version) + ')</span>';
+						}
+
+						if (d.versions && d.versions.length > 1) {
+							html += '<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--as-gray-200);">';
+							html += '<label style="font-weight:600;font-size:13px;color:var(--as-gray-700);display:block;margin-bottom:6px;">' +
+								'<i class="fas fa-code-branch"></i> Andere Version installieren:</label>';
+							html += '<div style="display:flex;gap:8px;align-items:center;">';
+							html += '<select id="as-cai-version-select" class="as-cai-select" style="flex:1;max-width:300px;">';
+							for (var i = 0; i < d.versions.length; i++) {
+								var v = d.versions[i];
+								var isCurrent = (v.version === d.current_version);
+								html += '<option value="' + escHtml(v.html_url) + '"' + (isCurrent ? ' selected disabled' : '') + '>' +
+									escHtml(v.version) + (isCurrent ? ' (installiert)' : '') +
+									(v.published_at ? ' — ' + escHtml(v.published_at) : '') + '</option>';
+							}
+							html += '</select>';
+							html += '<a id="as-cai-version-link" href="' + escHtml(d.versions[0].html_url) + '" target="_blank" class="as-cai-btn" style="white-space:nowrap;">' +
+								'<i class="fas fa-external-link-alt"></i> Zum Release</a>';
+							html += '</div></div>';
+						}
+
+						result.innerHTML = html;
+
+						var sel = document.getElementById('as-cai-version-select');
+						var link = document.getElementById('as-cai-version-link');
+						if (sel && link) {
+							sel.addEventListener('change', function() {
+								link.href = sel.value;
+							});
+						}
+					})
+					.catch(function() {
+						btn.disabled = false;
+						btn.querySelector('i').className = 'fas fa-sync-alt';
+						result.innerHTML = '<span style="color:var(--as-danger);"><i class="fas fa-exclamation-triangle"></i> Verbindung fehlgeschlagen</span>';
+					});
+				});
+			})();
+			</script>
 		</div>
 
 		<div class="as-cai-settings-section">
@@ -1325,6 +1409,98 @@ class AS_CAI_Admin {
 
 		$stats = $this->get_dashboard_stats();
 		wp_send_json_success( $stats );
+	}
+
+	/**
+	 * AJAX handler: Check for plugin updates via GitHub API.
+	 *
+	 * Queries the GitHub releases API directly (bypasses WP transient cache)
+	 * and returns version comparison, release notes, and all available versions.
+	 *
+	 * @since 1.3.63
+	 */
+	public function ajax_check_update() {
+		check_ajax_referer( 'as_cai_admin_nonce', 'nonce' );
+
+		if ( ! current_user_can( 'update_plugins' ) ) {
+			wp_send_json_error( array( 'message' => 'Keine Berechtigung' ) );
+		}
+
+		$repo = 'zb-marc/Camp-Availability-Integration';
+		$current_version = AS_CAI_VERSION;
+
+		// Fetch all releases from GitHub (not just latest).
+		$args = array(
+			'headers' => array(
+				'Accept'     => 'application/vnd.github.v3+json',
+				'User-Agent' => 'WordPress/' . get_bloginfo( 'version' ),
+			),
+			'timeout' => 15,
+		);
+
+		$token = defined( 'AS_CAI_GITHUB_TOKEN' ) ? AS_CAI_GITHUB_TOKEN : '';
+		if ( $token ) {
+			$args['headers']['Authorization'] = 'token ' . $token;
+		}
+
+		// Fetch all releases.
+		$response = wp_remote_get( 'https://api.github.com/repos/' . $repo . '/releases?per_page=20', $args );
+
+		if ( is_wp_error( $response ) ) {
+			wp_send_json_error( array( 'message' => 'GitHub nicht erreichbar: ' . $response->get_error_message() ) );
+		}
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			wp_send_json_error( array( 'message' => 'GitHub API Fehler (HTTP ' . wp_remote_retrieve_response_code( $response ) . ')' ) );
+		}
+
+		$releases = json_decode( wp_remote_retrieve_body( $response ) );
+
+		if ( empty( $releases ) || ! is_array( $releases ) ) {
+			wp_send_json_error( array( 'message' => 'Keine Releases gefunden' ) );
+		}
+
+		// Build versions list.
+		$versions = array();
+		foreach ( $releases as $release ) {
+			if ( empty( $release->tag_name ) ) {
+				continue;
+			}
+			$version = ltrim( $release->tag_name, 'vV' );
+			$versions[] = array(
+				'version'      => $version,
+				'name'         => $release->name ?? $release->tag_name,
+				'published_at' => isset( $release->published_at ) ? wp_date( 'd.m.Y H:i', strtotime( $release->published_at ) ) : '',
+				'download_url' => $release->zipball_url ?? '',
+				'html_url'     => $release->html_url ?? '',
+			);
+		}
+
+		$latest_version = $versions[0]['version'] ?? '0.0.0';
+		$update_available = version_compare( $latest_version, $current_version, '>' );
+
+		// Extract short release notes from latest release body.
+		$release_notes = '';
+		if ( ! empty( $releases[0]->body ) ) {
+			// Take just the first 200 chars.
+			$body = wp_strip_all_tags( $releases[0]->body );
+			if ( strlen( $body ) > 200 ) {
+				$body = substr( $body, 0, 200 ) . '…';
+			}
+			$release_notes = $body;
+		}
+
+		// Clear the updater cache so WordPress picks up the new version.
+		delete_transient( 'as_cai_github_updater_cache' );
+
+		wp_send_json_success( array(
+			'current_version'  => $current_version,
+			'latest_version'   => $latest_version,
+			'update_available' => $update_available,
+			'update_url'       => admin_url( 'update-core.php?force-check=1' ),
+			'release_notes'    => $release_notes,
+			'versions'         => $versions,
+		) );
 	}
 
 	/**
