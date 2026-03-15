@@ -82,14 +82,14 @@ class AS_CAI_Product_Availability {
 						   name="as_cai_availability_enabled" 
 						   value="yes" 
 						   <?php checked( $enabled, 'yes' ); ?>>
-					<strong><?php _e( 'Verfügbarkeit aktivieren', 'as-camp-availability-integration' ); ?></strong>
+					<strong><?php esc_html_e( 'Verfügbarkeit aktivieren', 'as-camp-availability-integration' ); ?></strong>
 				</label>
 			</p>
 
 			<div class="as-cai-availability-fields" style="<?php echo $enabled === 'yes' ? '' : 'display:none;'; ?>">
 				<p>
 					<label>
-						<strong><?php _e( 'Start-Datum', 'as-camp-availability-integration' ); ?></strong><br>
+						<strong><?php esc_html_e( 'Start-Datum', 'as-camp-availability-integration' ); ?></strong><br>
 						<input type="date" 
 							   name="as_cai_availability_start_date" 
 							   value="<?php echo esc_attr( $start_date ); ?>"
@@ -99,7 +99,7 @@ class AS_CAI_Product_Availability {
 
 				<p>
 					<label>
-						<strong><?php _e( 'Start-Zeit', 'as-camp-availability-integration' ); ?></strong><br>
+						<strong><?php esc_html_e( 'Start-Zeit', 'as-camp-availability-integration' ); ?></strong><br>
 						<input type="time" 
 							   name="as_cai_availability_start_time" 
 							   value="<?php echo esc_attr( $start_time ); ?>"
@@ -108,7 +108,7 @@ class AS_CAI_Product_Availability {
 				</p>
 
 				<p class="description">
-					<?php _e( 'Das Produkt wird erst ab dem angegebenen Datum/Zeit kaufbar.', 'as-camp-availability-integration' ); ?>
+					<?php esc_html_e( 'Das Produkt wird erst ab dem angegebenen Datum/Zeit kaufbar.', 'as-camp-availability-integration' ); ?>
 				</p>
 
 				<?php

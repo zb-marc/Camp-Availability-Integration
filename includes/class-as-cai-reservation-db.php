@@ -594,9 +594,10 @@ class AS_CAI_Reservation_DB {
 		global $wpdb;
 		$table_name = $wpdb->prefix . $this->table_name;
 		
-		// Delete expired reservations from database
-        // Use UTC_TIMESTAMP() instead of NOW() to ensure the deletion uses UTC time.
-        $deleted = $wpdb->query( "DELETE FROM {$table_name} WHERE expires < UTC_TIMESTAMP()" );
+		// Delete expired reservations from database.
+		// Use UTC_TIMESTAMP() instead of NOW() to ensure the deletion uses UTC time.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$deleted = $wpdb->query( "DELETE FROM {$table_name} WHERE expires < UTC_TIMESTAMP()" );
 		
 		// Note: Cart cleanup happens via woocommerce_before_calculate_totals hook
 		// See class-as-cai-cart-reservation.php -> cleanup_expired_cart_items()
@@ -610,6 +611,7 @@ class AS_CAI_Reservation_DB {
 	public function flush_all_reservations() {
 		global $wpdb;
 		$table_name = $wpdb->prefix . $this->table_name;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query( "DELETE FROM {$table_name}" );
 		wp_cache_flush();
 	}

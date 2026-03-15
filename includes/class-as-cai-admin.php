@@ -51,6 +51,7 @@ class AS_CAI_Admin {
 		add_action( 'wp_ajax_as_cai_clear_reservations', array( $this, 'ajax_clear_reservations' ) );
 		add_action( 'wp_ajax_as_cai_get_stats', array( $this, 'ajax_get_stats' ) );
 		add_action( 'wp_ajax_as_cai_check_update', array( $this, 'ajax_check_update' ) );
+		add_action( 'wp_ajax_as_cai_install_version', array( $this, 'ajax_install_version' ) );
 	}
 
 	/**
@@ -81,8 +82,8 @@ class AS_CAI_Admin {
 		// Cart Reservations submenu.
 		add_submenu_page(
 			'bg-camp-availability',
-			__( 'Cart Reservations', 'as-camp-availability-integration' ),
-			__( 'Cart Reservations', 'as-camp-availability-integration' ),
+			__( 'Warenkorb-Reservierungen', 'as-camp-availability-integration' ),
+			__( 'Warenkorb-Reservierungen', 'as-camp-availability-integration' ),
 			'manage_woocommerce',
 			'bg-camp-availability-reservations',
 			array( $this, 'render_admin_page' )
@@ -101,8 +102,8 @@ class AS_CAI_Admin {
 		// Test Suite submenu (v1.3.14).
 		add_submenu_page(
 			'bg-camp-availability',
-			__( 'Test Suite', 'as-camp-availability-integration' ),
-			__( 'Test Suite', 'as-camp-availability-integration' ),
+			__( 'Tests', 'as-camp-availability-integration' ),
+			__( 'Tests', 'as-camp-availability-integration' ),
 			'manage_woocommerce',
 			'bg-camp-availability-tests',
 			array( $this, 'render_admin_page' )
@@ -192,9 +193,9 @@ class AS_CAI_Admin {
 				'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
 				'nonce'     => wp_create_nonce( 'as_cai_admin_nonce' ),
 				'i18n'      => array(
-					'confirm_clear' => __( 'Are you sure you want to clear all reservations?', 'as-camp-availability-integration' ),
-					'cleared'       => __( 'Reservations cleared successfully!', 'as-camp-availability-integration' ),
-					'error'         => __( 'An error occurred. Please try again.', 'as-camp-availability-integration' ),
+					'confirm_clear' => __( 'Sind Sie sicher, dass Sie alle Reservierungen löschen möchten?', 'as-camp-availability-integration' ),
+					'cleared'       => __( 'Reservierungen erfolgreich gelöscht!', 'as-camp-availability-integration' ),
+					'error'         => __( 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.', 'as-camp-availability-integration' ),
 				),
 			)
 		);
@@ -220,15 +221,15 @@ class AS_CAI_Admin {
 		register_setting( 'as_cai_debug_settings', 'as_cai_enable_debug' );
 		register_setting( 'as_cai_debug_settings', 'as_cai_debug_log' );
 
-		// Advanced Debug Settings (v1.3.28).
-		register_setting( 'as_cai_advanced_debug_settings', 'as_cai_advanced_debug' );
-		register_setting( 'as_cai_advanced_debug_settings', 'as_cai_debug_area_admin' );
-		register_setting( 'as_cai_advanced_debug_settings', 'as_cai_debug_area_frontend' );
-		register_setting( 'as_cai_advanced_debug_settings', 'as_cai_debug_area_cart' );
-		register_setting( 'as_cai_advanced_debug_settings', 'as_cai_debug_area_database' );
-		register_setting( 'as_cai_advanced_debug_settings', 'as_cai_debug_area_cron' );
-		register_setting( 'as_cai_advanced_debug_settings', 'as_cai_debug_area_hooks' );
-		register_setting( 'as_cai_advanced_debug_settings', 'as_cai_debug_area_performance' );
+		// Advanced Debug Settings (v1.3.28) — registered under debug group since v1.3.65.
+		register_setting( 'as_cai_debug_settings', 'as_cai_advanced_debug' );
+		register_setting( 'as_cai_debug_settings', 'as_cai_debug_area_admin' );
+		register_setting( 'as_cai_debug_settings', 'as_cai_debug_area_frontend' );
+		register_setting( 'as_cai_debug_settings', 'as_cai_debug_area_cart' );
+		register_setting( 'as_cai_debug_settings', 'as_cai_debug_area_database' );
+		register_setting( 'as_cai_debug_settings', 'as_cai_debug_area_cron' );
+		register_setting( 'as_cai_debug_settings', 'as_cai_debug_area_hooks' );
+		register_setting( 'as_cai_debug_settings', 'as_cai_debug_area_performance' );
 	}
 
 	/**
@@ -293,7 +294,7 @@ class AS_CAI_Admin {
 							<?php
 							printf(
 								/* translators: %s: plugin version */
-								esc_html__( 'Version %s - Professional Camp Booking Management', 'as-camp-availability-integration' ),
+								esc_html__( 'Version %s – Professionelles Camp-Buchungsmanagement', 'as-camp-availability-integration' ),
 								esc_html( AS_CAI_VERSION )
 							);
 							?>
@@ -319,12 +320,12 @@ class AS_CAI_Admin {
 			<button class="as-cai-tab <?php echo esc_attr( 'reservations' === $this->active_tab ? 'active' : '' ); ?>" 
 			        onclick="window.location.href='<?php echo esc_url( admin_url( 'admin.php?page=bg-camp-availability-reservations' ) ); ?>'">
 				<i class="fas fa-list"></i>
-				<?php esc_html_e( 'Reservations', 'as-camp-availability-integration' ); ?>
+				<?php esc_html_e( 'Reservierungen', 'as-camp-availability-integration' ); ?>
 			</button>
 			<button class="as-cai-tab <?php echo esc_attr( 'settings' === $this->active_tab ? 'active' : '' ); ?>" 
 			        onclick="window.location.href='<?php echo esc_url( admin_url( 'admin.php?page=bg-camp-availability-settings' ) ); ?>'">
 				<i class="fas fa-cog"></i>
-				<?php esc_html_e( 'Settings', 'as-camp-availability-integration' ); ?>
+				<?php esc_html_e( 'Einstellungen', 'as-camp-availability-integration' ); ?>
 			</button>
 			<button class="as-cai-tab <?php echo esc_attr( 'tests' === $this->active_tab ? 'active' : '' ); ?>" 
 			        onclick="window.location.href='<?php echo esc_url( admin_url( 'admin.php?page=bg-camp-availability-tests' ) ); ?>'">
@@ -334,7 +335,7 @@ class AS_CAI_Admin {
 			<button class="as-cai-tab <?php echo esc_attr( 'docs' === $this->active_tab ? 'active' : '' ); ?>" 
 			        onclick="window.location.href='<?php echo esc_url( admin_url( 'admin.php?page=bg-camp-availability-docs' ) ); ?>'">
 				<i class="fas fa-book"></i>
-				<?php esc_html_e( 'Documentation', 'as-camp-availability-integration' ); ?>
+				<?php esc_html_e( 'Dokumentation', 'as-camp-availability-integration' ); ?>
 			</button>
 		</div>
 		<?php
@@ -357,7 +358,7 @@ class AS_CAI_Admin {
 					<?php echo esc_html( $stats['active_reservations'] ); ?>
 				</div>
 				<div class="as-cai-stat-label">
-					<?php esc_html_e( 'Active Reservations', 'as-camp-availability-integration' ); ?>
+					<?php esc_html_e( 'Aktive Reservierungen', 'as-camp-availability-integration' ); ?>
 				</div>
 			</div>
 
@@ -370,7 +371,7 @@ class AS_CAI_Admin {
 					<?php echo esc_html( $stats['reserved_products'] ); ?>
 				</div>
 				<div class="as-cai-stat-label">
-					<?php esc_html_e( 'Reserved Products', 'as-camp-availability-integration' ); ?>
+					<?php esc_html_e( 'Reservierte Produkte', 'as-camp-availability-integration' ); ?>
 				</div>
 			</div>
 
@@ -383,7 +384,7 @@ class AS_CAI_Admin {
 					<?php echo esc_html( $stats['expired_today'] ); ?>
 				</div>
 				<div class="as-cai-stat-label">
-					<?php esc_html_e( 'Expired Today', 'as-camp-availability-integration' ); ?>
+					<?php esc_html_e( 'Heute abgelaufen', 'as-camp-availability-integration' ); ?>
 				</div>
 			</div>
 
@@ -394,10 +395,10 @@ class AS_CAI_Admin {
 				</div>
 				<div class="as-cai-badge healthy" style="margin-top: 10px;">
 					<i class="fas fa-check-circle"></i>
-					<?php echo $stats['system_healthy'] ? esc_html__( 'Healthy', 'as-camp-availability-integration' ) : esc_html__( 'Issues', 'as-camp-availability-integration' ); ?>
+					<?php echo $stats['system_healthy'] ? esc_html__( 'In Ordnung', 'as-camp-availability-integration' ) : esc_html__( 'Probleme', 'as-camp-availability-integration' ); ?>
 				</div>
 				<div class="as-cai-stat-label">
-					<?php esc_html_e( 'System Status', 'as-camp-availability-integration' ); ?>
+					<?php esc_html_e( 'Systemstatus', 'as-camp-availability-integration' ); ?>
 				</div>
 			</div>
 		</div>
@@ -407,21 +408,21 @@ class AS_CAI_Admin {
 			<a href="<?php echo esc_url( admin_url( 'admin.php?page=bg-camp-availability-settings' ) ); ?>" 
 			   class="as-cai-btn as-cai-btn-primary">
 				<i class="fas fa-cog"></i>
-				<?php esc_html_e( 'Configure Settings', 'as-camp-availability-integration' ); ?>
+				<?php esc_html_e( 'Einstellungen', 'as-camp-availability-integration' ); ?>
 			</a>
 			<a href="<?php echo esc_url( admin_url( 'admin.php?page=bg-camp-availability-reservations' ) ); ?>" 
 			   class="as-cai-btn as-cai-btn-success">
 				<i class="fas fa-list"></i>
-				<?php esc_html_e( 'View Reservations', 'as-camp-availability-integration' ); ?>
+				<?php esc_html_e( 'Reservierungen anzeigen', 'as-camp-availability-integration' ); ?>
 			</a>
 			<button @click="clearAllReservations()" class="as-cai-btn as-cai-btn-danger">
 				<i class="fas fa-trash"></i>
-				<?php esc_html_e( 'Clear All Reservations', 'as-camp-availability-integration' ); ?>
+				<?php esc_html_e( 'Alle Reservierungen löschen', 'as-camp-availability-integration' ); ?>
 			</button>
 			<a href="<?php echo esc_url( admin_url( 'admin.php?page=bg-camp-availability-settings' ) ); ?>" 
 			   class="as-cai-btn as-cai-btn-secondary">
 				<i class="fas fa-cog"></i>
-				<?php esc_html_e( 'Settings & Tools', 'as-camp-availability-integration' ); ?>
+				<?php esc_html_e( 'Einstellungen & Tools', 'as-camp-availability-integration' ); ?>
 			</a>
 		</div>
 
@@ -436,11 +437,11 @@ class AS_CAI_Admin {
 	 */
 	private function render_settings() {
 		?>
-		<div class="as-cai-card as-cai-fade-in" x-data="{ activeTab: 'general' }">
+		<div class="as-cai-card as-cai-fade-in" x-data="{ activeTab: 'countdown' }">
 			<div class="as-cai-card-header">
 				<h2 class="as-cai-card-title">
 					<i class="fas fa-cog"></i>
-					<?php esc_html_e( 'Plugin Settings & Tools', 'as-camp-availability-integration' ); ?>
+					<?php esc_html_e( 'Einstellungen', 'as-camp-availability-integration' ); ?>
 				</h2>
 			</div>
 
@@ -448,47 +449,47 @@ class AS_CAI_Admin {
 			<div class="as-cai-card-body" style="padding: 0;">
 				<div style="border-bottom: 2px solid var(--as-gray-200); background: var(--as-gray-50);">
 					<nav style="display: flex; gap: 0; padding: 0 24px;">
-						<button type="button" @click="activeTab = 'general'" 
-						        :class="activeTab === 'general' ? 'as-cai-settings-tab-active' : 'as-cai-settings-tab'"
+						<button type="button" @click="activeTab = 'countdown'"
+						        :class="activeTab === 'countdown' ? 'as-cai-settings-tab-active' : 'as-cai-settings-tab'"
 						        style="flex: 1; padding: 16px 20px; border: none; background: transparent; cursor: pointer; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s; border-bottom: 3px solid transparent;">
-							<i class="fas fa-sliders-h"></i>
-							<?php esc_html_e( 'General', 'as-camp-availability-integration' ); ?>
+							<i class="fas fa-clock"></i>
+							<?php esc_html_e( 'Countdown', 'as-camp-availability-integration' ); ?>
 						</button>
-						<button type="button" @click="activeTab = 'cart'" 
+						<button type="button" @click="activeTab = 'cart'"
 						        :class="activeTab === 'cart' ? 'as-cai-settings-tab-active' : 'as-cai-settings-tab'"
 						        style="flex: 1; padding: 16px 20px; border: none; background: transparent; cursor: pointer; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s; border-bottom: 3px solid transparent;">
 							<i class="fas fa-shopping-cart"></i>
-							<?php esc_html_e( 'Cart Reservation', 'as-camp-availability-integration' ); ?>
+							<?php esc_html_e( 'Warenkorb', 'as-camp-availability-integration' ); ?>
 						</button>
-						<button type="button" @click="activeTab = 'debug_settings'" 
-						        :class="activeTab === 'debug_settings' ? 'as-cai-settings-tab-active' : 'as-cai-settings-tab'"
+						<button type="button" @click="activeTab = 'updates'"
+						        :class="activeTab === 'updates' ? 'as-cai-settings-tab-active' : 'as-cai-settings-tab'"
+						        style="flex: 1; padding: 16px 20px; border: none; background: transparent; cursor: pointer; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s; border-bottom: 3px solid transparent;">
+							<i class="fas fa-sync-alt"></i>
+							<?php esc_html_e( 'Updates', 'as-camp-availability-integration' ); ?>
+						</button>
+						<button type="button" @click="activeTab = 'debug'"
+						        :class="activeTab === 'debug' ? 'as-cai-settings-tab-active' : 'as-cai-settings-tab'"
 						        style="flex: 1; padding: 16px 20px; border: none; background: transparent; cursor: pointer; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s; border-bottom: 3px solid transparent;">
 							<i class="fas fa-bug"></i>
-							<?php esc_html_e( 'Debug Settings', 'as-camp-availability-integration' ); ?>
+							<?php esc_html_e( 'Debug', 'as-camp-availability-integration' ); ?>
 						</button>
-						<button type="button" @click="activeTab = 'debug_tools'" 
+						<button type="button" @click="activeTab = 'debug_tools'"
 						        :class="activeTab === 'debug_tools' ? 'as-cai-settings-tab-active' : 'as-cai-settings-tab'"
 						        style="flex: 1; padding: 16px 20px; border: none; background: transparent; cursor: pointer; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s; border-bottom: 3px solid transparent;">
 							<i class="fas fa-tools"></i>
-							<?php esc_html_e( 'Debug Tools', 'as-camp-availability-integration' ); ?>
-						</button>
-						<button type="button" @click="activeTab = 'advanced_debug'"
-						        :class="activeTab === 'advanced_debug' ? 'as-cai-settings-tab-active' : 'as-cai-settings-tab'"
-						        style="flex: 1; padding: 16px 20px; border: none; background: transparent; cursor: pointer; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s; border-bottom: 3px solid transparent;">
-							<i class="fas fa-microscope"></i>
-							<?php esc_html_e( 'Advanced Debug', 'as-camp-availability-integration' ); ?>
+							<?php esc_html_e( 'Debug-Tools', 'as-camp-availability-integration' ); ?>
 						</button>
 					</nav>
 				</div>
 
-				<!-- Settings Form (for first 3 tabs and advanced debug) -->
-				<form method="post" action="options.php" x-show="activeTab !== 'debug_tools'">
-					<!-- General Settings Tab -->
-					<div x-show="activeTab === 'general'" style="padding: 24px;">
+				<!-- Settings Form (for tabs with saveable options) -->
+				<form method="post" action="options.php" x-show="activeTab !== 'debug_tools' && activeTab !== 'updates'">
+					<!-- Countdown Settings Tab -->
+					<div x-show="activeTab === 'countdown'" style="padding: 24px;">
 						<?php settings_fields( 'as_cai_general_settings' ); ?>
 						<?php $this->render_general_settings(); ?>
 						<div style="margin-top: 24px; padding-top: 24px; border-top: 2px solid var(--as-gray-200); display: flex; justify-content: flex-end;">
-							<?php submit_button( __( 'Save Settings', 'as-camp-availability-integration' ), 'primary as-cai-btn as-cai-btn-primary', 'submit', false ); ?>
+							<?php submit_button( __( 'Einstellungen speichern', 'as-camp-availability-integration' ), 'primary as-cai-btn as-cai-btn-primary', 'submit', false ); ?>
 						</div>
 					</div>
 
@@ -497,33 +498,31 @@ class AS_CAI_Admin {
 						<?php settings_fields( 'as_cai_cart_settings' ); ?>
 						<?php $this->render_cart_settings(); ?>
 						<div style="margin-top: 24px; padding-top: 24px; border-top: 2px solid var(--as-gray-200); display: flex; justify-content: flex-end;">
-							<?php submit_button( __( 'Save Settings', 'as-camp-availability-integration' ), 'primary as-cai-btn as-cai-btn-primary', 'submit', false ); ?>
+							<?php submit_button( __( 'Einstellungen speichern', 'as-camp-availability-integration' ), 'primary as-cai-btn as-cai-btn-primary', 'submit', false ); ?>
 						</div>
 					</div>
 
-					<!-- Debug Settings Tab -->
-					<div x-show="activeTab === 'debug_settings'" x-cloak style="padding: 24px;">
+					<!-- Debug Settings Tab (combined basic + advanced) -->
+					<div x-show="activeTab === 'debug'" x-cloak style="padding: 24px;">
 						<?php settings_fields( 'as_cai_debug_settings' ); ?>
 						<?php $this->render_debug_settings(); ?>
-						<div style="margin-top: 24px; padding-top: 24px; border-top: 2px solid var(--as-gray-200); display: flex; justify-content: flex-end;">
-							<?php submit_button( __( 'Save Settings', 'as-camp-availability-integration' ), 'primary as-cai-btn as-cai-btn-primary', 'submit', false ); ?>
+						<div style="margin-top: 32px;">
+							<?php $this->render_advanced_debug_settings(); ?>
 						</div>
-					</div>
-
-					<!-- Advanced Debug Tab (v1.3.28) -->
-					<div x-show="activeTab === 'advanced_debug'" x-cloak style="padding: 24px;">
-						<?php settings_fields( 'as_cai_advanced_debug_settings' ); ?>
-						<?php $this->render_advanced_debug_settings(); ?>
 						<div style="margin-top: 24px; padding-top: 24px; border-top: 2px solid var(--as-gray-200); display: flex; justify-content: flex-end;">
-							<?php submit_button( __( 'Save Settings', 'as-camp-availability-integration' ), 'primary as-cai-btn as-cai-btn-primary', 'submit', false ); ?>
+							<?php submit_button( __( 'Einstellungen speichern', 'as-camp-availability-integration' ), 'primary as-cai-btn as-cai-btn-primary', 'submit', false ); ?>
 						</div>
 					</div>
 				</form>
 
+				<!-- Updates Tab (No form - AJAX based) -->
+				<div x-show="activeTab === 'updates'" x-cloak style="padding: 24px;">
+					<?php $this->render_updates_tab(); ?>
+				</div>
+
 				<!-- Debug Tools Tab (No form - direct tools) -->
 				<div x-show="activeTab === 'debug_tools'" x-cloak style="padding: 24px; background: var(--as-gray-50);">
 					<?php
-					// Render Debug Panel directly
 					if ( class_exists( 'AS_CAI_Debug_Panel' ) ) {
 						AS_CAI_Debug_Panel::instance()->render_page();
 					}
@@ -664,111 +663,10 @@ class AS_CAI_Admin {
 		$countdown_position  = get_option( 'as_cai_countdown_position', 'before_add_to_cart' );
 		$countdown_style     = get_option( 'as_cai_countdown_style', 'default' );
 		?>
-		<!-- Update Check Section -->
-		<div class="as-cai-settings-section" style="margin-bottom: 24px;">
-			<h3 style="font-size: 1.125rem; font-weight: 600; color: var(--as-gray-900); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-				<i class="fas fa-sync-alt" style="color: var(--as-primary);"></i>
-				<?php esc_html_e( 'Plugin Update', 'as-camp-availability-integration' ); ?>
-			</h3>
-			<div class="as-cai-settings-row" style="align-items: center;">
-				<div class="as-cai-settings-label">
-					<strong><?php printf( esc_html__( 'Installierte Version: %s', 'as-camp-availability-integration' ), esc_html( AS_CAI_VERSION ) ); ?></strong>
-					<div id="as-cai-update-result" style="margin-top: 8px;"></div>
-				</div>
-				<button type="button" id="as-cai-check-update-btn" class="as-cai-btn as-cai-btn-primary" style="white-space: nowrap;">
-					<i class="fas fa-sync-alt"></i>
-					<?php esc_html_e( 'Auf Update prüfen', 'as-camp-availability-integration' ); ?>
-				</button>
-			</div>
-			<script>
-			(function() {
-				var btn = document.getElementById('as-cai-check-update-btn');
-				var result = document.getElementById('as-cai-update-result');
-				if (!btn) return;
-
-				function escHtml(s) {
-					var d = document.createElement('div');
-					d.textContent = s;
-					return d.innerHTML;
-				}
-
-				btn.addEventListener('click', function() {
-					btn.disabled = true;
-					btn.querySelector('i').className = 'fas fa-spinner fa-spin';
-					result.innerHTML = '<span style="color:var(--as-gray-500);"><i class="fas fa-spinner fa-spin"></i> Prüfe auf GitHub...</span>';
-					fetch(asCaiAdmin.ajaxUrl, {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-						body: new URLSearchParams({
-							action: 'as_cai_check_update',
-							nonce: asCaiAdmin.nonce
-						})
-					})
-					.then(function(r) { return r.json(); })
-					.then(function(data) {
-						btn.disabled = false;
-						btn.querySelector('i').className = 'fas fa-sync-alt';
-						if (!data.success) {
-							result.innerHTML = '<span style="color:var(--as-danger);">' +
-								'<i class="fas fa-exclamation-triangle"></i> ' + escHtml(data.data.message || 'Unbekannter Fehler') + '</span>';
-							return;
-						}
-						var d = data.data;
-						var html = '';
-
-						if (d.update_available) {
-							html += '<span style="color:var(--as-success);font-weight:600;">' +
-								'<i class="fas fa-arrow-circle-up"></i> Version ' + escHtml(d.latest_version) + ' verfügbar!</span>';
-							html += '<br><a href="' + escHtml(d.update_url) + '" class="as-cai-btn as-cai-btn-primary" style="margin-top:8px;display:inline-block;">' +
-								'<i class="fas fa-download"></i> Jetzt aktualisieren</a>';
-						} else {
-							html += '<span style="color:var(--as-success);font-weight:600;">' +
-								'<i class="fas fa-check-circle"></i> Neueste Version (' + escHtml(d.latest_version) + ')</span>';
-						}
-
-						if (d.versions && d.versions.length > 1) {
-							html += '<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--as-gray-200);">';
-							html += '<label style="font-weight:600;font-size:13px;color:var(--as-gray-700);display:block;margin-bottom:6px;">' +
-								'<i class="fas fa-code-branch"></i> Andere Version installieren:</label>';
-							html += '<div style="display:flex;gap:8px;align-items:center;">';
-							html += '<select id="as-cai-version-select" class="as-cai-select" style="flex:1;max-width:300px;">';
-							for (var i = 0; i < d.versions.length; i++) {
-								var v = d.versions[i];
-								var isCurrent = (v.version === d.current_version);
-								html += '<option value="' + escHtml(v.html_url) + '"' + (isCurrent ? ' selected disabled' : '') + '>' +
-									escHtml(v.version) + (isCurrent ? ' (installiert)' : '') +
-									(v.published_at ? ' — ' + escHtml(v.published_at) : '') + '</option>';
-							}
-							html += '</select>';
-							html += '<a id="as-cai-version-link" href="' + escHtml(d.versions[0].html_url) + '" target="_blank" class="as-cai-btn" style="white-space:nowrap;">' +
-								'<i class="fas fa-external-link-alt"></i> Zum Release</a>';
-							html += '</div></div>';
-						}
-
-						result.innerHTML = html;
-
-						var sel = document.getElementById('as-cai-version-select');
-						var link = document.getElementById('as-cai-version-link');
-						if (sel && link) {
-							sel.addEventListener('change', function() {
-								link.href = sel.value;
-							});
-						}
-					})
-					.catch(function() {
-						btn.disabled = false;
-						btn.querySelector('i').className = 'fas fa-sync-alt';
-						result.innerHTML = '<span style="color:var(--as-danger);"><i class="fas fa-exclamation-triangle"></i> Verbindung fehlgeschlagen</span>';
-					});
-				});
-			})();
-			</script>
-		</div>
-
 		<div class="as-cai-settings-section">
 			<h3 style="font-size: 1.125rem; font-weight: 600; color: var(--as-gray-900); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
 				<i class="fas fa-clock" style="color: var(--as-primary);"></i>
-				<?php esc_html_e( 'Countdown Timer Settings', 'as-camp-availability-integration' ); ?>
+				<?php esc_html_e( 'Countdown-Timer Einstellungen', 'as-camp-availability-integration' ); ?>
 			</h3>
 
 			<!-- Enable Countdown -->
@@ -778,26 +676,26 @@ class AS_CAI_Admin {
 					<span class="as-cai-slider"></span>
 				</label>
 				<div class="as-cai-settings-label">
-					<strong><?php esc_html_e( 'Enable Countdown Timer', 'as-camp-availability-integration' ); ?></strong>
-					<p><?php esc_html_e( 'Show countdown timer on product pages', 'as-camp-availability-integration' ); ?></p>
+					<strong><?php esc_html_e( 'Countdown-Timer aktivieren', 'as-camp-availability-integration' ); ?></strong>
+					<p><?php esc_html_e( 'Zeigt den Countdown-Timer auf Produktseiten an', 'as-camp-availability-integration' ); ?></p>
 				</div>
 			</div>
 
 			<!-- Position -->
 			<div class="as-cai-settings-row">
 				<div class="as-cai-settings-label">
-					<label for="as_cai_countdown_position"><strong><?php esc_html_e( 'Countdown Position', 'as-camp-availability-integration' ); ?></strong></label>
-					<p><?php esc_html_e( 'Where to display the countdown timer on product pages', 'as-camp-availability-integration' ); ?></p>
+					<label for="as_cai_countdown_position"><strong><?php esc_html_e( 'Position', 'as-camp-availability-integration' ); ?></strong></label>
+					<p><?php esc_html_e( 'Wo der Countdown-Timer auf Produktseiten angezeigt wird', 'as-camp-availability-integration' ); ?></p>
 				</div>
 				<select name="as_cai_countdown_position" id="as_cai_countdown_position" class="as-cai-select">
 					<option value="before_add_to_cart" <?php selected( $countdown_position, 'before_add_to_cart' ); ?>>
-						<?php esc_html_e( 'Before Add to Cart Button', 'as-camp-availability-integration' ); ?>
+						<?php esc_html_e( 'Vor dem Warenkorb-Button', 'as-camp-availability-integration' ); ?>
 					</option>
 					<option value="after_add_to_cart" <?php selected( $countdown_position, 'after_add_to_cart' ); ?>>
-						<?php esc_html_e( 'After Add to Cart Button', 'as-camp-availability-integration' ); ?>
+						<?php esc_html_e( 'Nach dem Warenkorb-Button', 'as-camp-availability-integration' ); ?>
 					</option>
 					<option value="before_product_meta" <?php selected( $countdown_position, 'before_product_meta' ); ?>>
-						<?php esc_html_e( 'Before Product Meta', 'as-camp-availability-integration' ); ?>
+						<?php esc_html_e( 'Vor den Produkt-Metadaten', 'as-camp-availability-integration' ); ?>
 					</option>
 				</select>
 			</div>
@@ -805,18 +703,18 @@ class AS_CAI_Admin {
 			<!-- Style -->
 			<div class="as-cai-settings-row">
 				<div class="as-cai-settings-label">
-					<label for="as_cai_countdown_style"><strong><?php esc_html_e( 'Countdown Style', 'as-camp-availability-integration' ); ?></strong></label>
-					<p><?php esc_html_e( 'Visual style of the countdown timer', 'as-camp-availability-integration' ); ?></p>
+					<label for="as_cai_countdown_style"><strong><?php esc_html_e( 'Darstellung', 'as-camp-availability-integration' ); ?></strong></label>
+					<p><?php esc_html_e( 'Visueller Stil des Countdown-Timers', 'as-camp-availability-integration' ); ?></p>
 				</div>
 				<select name="as_cai_countdown_style" id="as_cai_countdown_style" class="as-cai-select">
 					<option value="default" <?php selected( $countdown_style, 'default' ); ?>>
-						<?php esc_html_e( 'Default', 'as-camp-availability-integration' ); ?>
+						<?php esc_html_e( 'Standard', 'as-camp-availability-integration' ); ?>
 					</option>
 					<option value="minimal" <?php selected( $countdown_style, 'minimal' ); ?>>
 						<?php esc_html_e( 'Minimal', 'as-camp-availability-integration' ); ?>
 					</option>
 					<option value="bold" <?php selected( $countdown_style, 'bold' ); ?>>
-						<?php esc_html_e( 'Bold', 'as-camp-availability-integration' ); ?>
+						<?php esc_html_e( 'Fett', 'as-camp-availability-integration' ); ?>
 					</option>
 				</select>
 			</div>
@@ -839,10 +737,10 @@ class AS_CAI_Admin {
 				<i class="fas fa-info-circle" style="color: var(--as-info); font-size: 1.25rem; margin-top: 2px;"></i>
 				<div>
 					<strong style="color: var(--as-gray-900); display: block; margin-bottom: 4px;">
-						<?php esc_html_e( 'Cart Reservations', 'as-camp-availability-integration' ); ?>
+						<?php esc_html_e( 'Warenkorb-Reservierungen', 'as-camp-availability-integration' ); ?>
 					</strong>
 					<p style="margin: 0; color: var(--as-gray-700);">
-						<?php esc_html_e( 'Cart reservations prevent customers from holding items indefinitely. Products are automatically released after the reservation time expires.', 'as-camp-availability-integration' ); ?>
+						<?php esc_html_e( 'Warenkorb-Reservierungen verhindern, dass Kunden Produkte unbegrenzt halten. Produkte werden nach Ablauf der Reservierungszeit automatisch freigegeben.', 'as-camp-availability-integration' ); ?>
 					</p>
 				</div>
 			</div>
@@ -851,54 +749,50 @@ class AS_CAI_Admin {
 		<div class="as-cai-settings-section">
 			<h3 style="font-size: 1.125rem; font-weight: 600; color: var(--as-gray-900); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
 				<i class="fas fa-shopping-cart" style="color: var(--as-primary);"></i>
-				<?php esc_html_e( 'Cart Reservation Settings', 'as-camp-availability-integration' ); ?>
+				<?php esc_html_e( 'Warenkorb-Reservierung', 'as-camp-availability-integration' ); ?>
 			</h3>
 
-			<!-- Enable Cart Reservation -->
 			<div class="as-cai-settings-row">
 				<label class="as-cai-switch">
 					<input type="checkbox" name="as_cai_enable_cart_reservation" value="yes" <?php checked( $enable_cart_reservation, 'yes' ); ?>>
 					<span class="as-cai-slider"></span>
 				</label>
 				<div class="as-cai-settings-label">
-					<strong><?php esc_html_e( 'Enable Cart Reservations', 'as-camp-availability-integration' ); ?></strong>
-					<p><?php esc_html_e( 'Automatically reserve products when added to cart', 'as-camp-availability-integration' ); ?></p>
+					<strong><?php esc_html_e( 'Warenkorb-Reservierung aktivieren', 'as-camp-availability-integration' ); ?></strong>
+					<p><?php esc_html_e( 'Produkte automatisch reservieren, wenn sie in den Warenkorb gelegt werden', 'as-camp-availability-integration' ); ?></p>
 				</div>
 			</div>
 
-			<!-- Reservation Time -->
 			<div class="as-cai-settings-row">
 				<div class="as-cai-settings-label">
-					<label for="as_cai_reservation_time"><strong><?php esc_html_e( 'Reservation Time (Minutes)', 'as-camp-availability-integration' ); ?></strong></label>
-					<p><?php esc_html_e( 'Default: 5 minutes', 'as-camp-availability-integration' ); ?></p>
+					<label for="as_cai_reservation_time"><strong><?php esc_html_e( 'Reservierungszeit (Minuten)', 'as-camp-availability-integration' ); ?></strong></label>
+					<p><?php esc_html_e( 'Standard: 5 Minuten', 'as-camp-availability-integration' ); ?></p>
 				</div>
 				<input type="number" name="as_cai_reservation_time" id="as_cai_reservation_time" value="<?php echo esc_attr( $reservation_time ); ?>" min="1" max="60" class="as-cai-input" style="width: 120px;">
 			</div>
 
-			<!-- Show Cart Timer -->
 			<div class="as-cai-settings-row">
 				<label class="as-cai-switch">
 					<input type="checkbox" name="as_cai_show_cart_timer" value="yes" <?php checked( $show_cart_timer, 'yes' ); ?>>
 					<span class="as-cai-slider"></span>
 				</label>
 				<div class="as-cai-settings-label">
-					<strong><?php esc_html_e( 'Show Countdown Timer in Cart', 'as-camp-availability-integration' ); ?></strong>
-					<p><?php esc_html_e( 'Display reservation timer in the shopping cart', 'as-camp-availability-integration' ); ?></p>
+					<strong><?php esc_html_e( 'Countdown im Warenkorb anzeigen', 'as-camp-availability-integration' ); ?></strong>
+					<p><?php esc_html_e( 'Zeigt den Reservierungs-Timer im Warenkorb an', 'as-camp-availability-integration' ); ?></p>
 				</div>
 			</div>
 
-			<!-- Timer Style -->
 			<div class="as-cai-settings-row">
 				<div class="as-cai-settings-label">
-					<label for="as_cai_cart_timer_style"><strong><?php esc_html_e( 'Cart Timer Style', 'as-camp-availability-integration' ); ?></strong></label>
-					<p><?php esc_html_e( 'Visual appearance of the cart timer', 'as-camp-availability-integration' ); ?></p>
+					<label for="as_cai_cart_timer_style"><strong><?php esc_html_e( 'Timer-Darstellung', 'as-camp-availability-integration' ); ?></strong></label>
+					<p><?php esc_html_e( 'Visuelles Erscheinungsbild des Warenkorb-Timers', 'as-camp-availability-integration' ); ?></p>
 				</div>
 				<select name="as_cai_cart_timer_style" id="as_cai_cart_timer_style" class="as-cai-select">
 					<option value="full" <?php selected( $cart_timer_style, 'full' ); ?>>
-						<?php esc_html_e( 'Full (With message)', 'as-camp-availability-integration' ); ?>
+						<?php esc_html_e( 'Vollständig (mit Nachricht)', 'as-camp-availability-integration' ); ?>
 					</option>
 					<option value="compact" <?php selected( $cart_timer_style, 'compact' ); ?>>
-						<?php esc_html_e( 'Compact (Timer only)', 'as-camp-availability-integration' ); ?>
+						<?php esc_html_e( 'Kompakt (nur Timer)', 'as-camp-availability-integration' ); ?>
 					</option>
 					<option value="minimal" <?php selected( $cart_timer_style, 'minimal' ); ?>>
 						<?php esc_html_e( 'Minimal', 'as-camp-availability-integration' ); ?>
@@ -906,11 +800,10 @@ class AS_CAI_Admin {
 				</select>
 			</div>
 
-			<!-- Warning Threshold -->
 			<div class="as-cai-settings-row">
 				<div class="as-cai-settings-label">
-					<label for="as_cai_warning_threshold"><strong><?php esc_html_e( 'Warning Threshold (Minutes)', 'as-camp-availability-integration' ); ?></strong></label>
-					<p><?php esc_html_e( 'Show warning when time remaining is below this threshold', 'as-camp-availability-integration' ); ?></p>
+					<label for="as_cai_warning_threshold"><strong><?php esc_html_e( 'Warnschwelle (Minuten)', 'as-camp-availability-integration' ); ?></strong></label>
+					<p><?php esc_html_e( 'Warnung anzeigen, wenn die verbleibende Zeit unter diesem Schwellenwert liegt', 'as-camp-availability-integration' ); ?></p>
 				</div>
 				<input type="number" name="as_cai_warning_threshold" id="as_cai_warning_threshold" value="<?php echo esc_attr( $warning_threshold ); ?>" min="1" max="10" class="as-cai-input" style="width: 120px;">
 			</div>
@@ -930,27 +823,11 @@ class AS_CAI_Admin {
 				<i class="fas fa-exclamation-triangle" style="color: var(--as-warning); font-size: 1.25rem; margin-top: 2px;"></i>
 				<div>
 					<strong style="color: var(--as-gray-900); display: block; margin-bottom: 4px;">
-						<?php esc_html_e( 'Production Warning', 'as-camp-availability-integration' ); ?>
+						<?php esc_html_e( 'Produktivwarnung', 'as-camp-availability-integration' ); ?>
 					</strong>
 					<p style="margin: 0; color: var(--as-gray-700);">
-						<?php esc_html_e( 'Debug mode should only be enabled when troubleshooting issues. Disable it in production for security and performance.', 'as-camp-availability-integration' ); ?>
+						<?php esc_html_e( 'Der Debug-Modus sollte nur zur Fehlerbehebung aktiviert werden. Deaktivieren Sie ihn im Produktivbetrieb aus Sicherheits- und Leistungsgründen.', 'as-camp-availability-integration' ); ?>
 					</p>
-				</div>
-			</div>
-		</div>
-
-		<div class="as-cai-info-box" style="margin-bottom: 24px;">
-			<div style="display: flex; align-items: flex-start; gap: 12px;">
-				<i class="fas fa-info-circle" style="color: var(--as-info); font-size: 1.25rem; margin-top: 2px;"></i>
-				<div>
-					<strong style="color: var(--as-gray-900); display: block; margin-bottom: 4px;">
-						<?php esc_html_e( 'Debug Configuration Overview', 'as-camp-availability-integration' ); ?>
-					</strong>
-					<ul style="margin: 8px 0 0 0; padding-left: 20px; color: var(--as-gray-700); font-size: 0.875rem;">
-						<li><?php esc_html_e( 'Debug Mode: Shows detailed debug information in admin panels and frontend', 'as-camp-availability-integration' ); ?></li>
-						<li><?php esc_html_e( 'Debug Logging: Writes detailed logs to WordPress debug.log (requires WP_DEBUG_LOG)', 'as-camp-availability-integration' ); ?></li>
-						<li><?php esc_html_e( 'Debug Tools: Available in the "Debug Tools" tab above - test reservation system and view logs', 'as-camp-availability-integration' ); ?></li>
-					</ul>
 				</div>
 			</div>
 		</div>
@@ -958,44 +835,28 @@ class AS_CAI_Admin {
 		<div class="as-cai-settings-section">
 			<h3 style="font-size: 1.125rem; font-weight: 600; color: var(--as-gray-900); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
 				<i class="fas fa-bug" style="color: var(--as-primary);"></i>
-				<?php esc_html_e( 'Debug Settings', 'as-camp-availability-integration' ); ?>
+				<?php esc_html_e( 'Allgemeine Debug-Einstellungen', 'as-camp-availability-integration' ); ?>
 			</h3>
 
-			<!-- Enable Debug Mode -->
 			<div class="as-cai-settings-row">
 				<label class="as-cai-switch">
 					<input type="checkbox" name="as_cai_enable_debug" value="yes" <?php checked( $enable_debug, 'yes' ); ?>>
 					<span class="as-cai-slider"></span>
 				</label>
 				<div class="as-cai-settings-label">
-					<strong><?php esc_html_e( 'Enable Debug Mode', 'as-camp-availability-integration' ); ?></strong>
-					<p><?php esc_html_e( 'Shows detailed debug information in admin panels and frontend. Useful for troubleshooting reservation issues, stock calculations, and timer behavior.', 'as-camp-availability-integration' ); ?></p>
+					<strong><?php esc_html_e( 'Debug-Modus aktivieren', 'as-camp-availability-integration' ); ?></strong>
+					<p><?php esc_html_e( 'Zeigt detaillierte Debug-Informationen in Admin-Panels und im Frontend an.', 'as-camp-availability-integration' ); ?></p>
 				</div>
 			</div>
 
-			<!-- Enable Debug Logging -->
 			<div class="as-cai-settings-row">
 				<label class="as-cai-switch">
 					<input type="checkbox" name="as_cai_debug_log" value="yes" <?php checked( $debug_log, 'yes' ); ?>>
 					<span class="as-cai-slider"></span>
 				</label>
 				<div class="as-cai-settings-label">
-					<strong><?php esc_html_e( 'Enable Debug Logging', 'as-camp-availability-integration' ); ?></strong>
-					<p><?php esc_html_e( 'Writes detailed log entries to WordPress debug.log file. Requires WP_DEBUG and WP_DEBUG_LOG to be enabled in wp-config.php. Check "Debug Tools" tab for log viewer.', 'as-camp-availability-integration' ); ?></p>
-				</div>
-			</div>
-		</div>
-
-		<div class="as-cai-info-box" style="margin-top: 24px;">
-			<div style="display: flex; align-items: flex-start; gap: 12px;">
-				<i class="fas fa-lightbulb" style="color: var(--as-info); font-size: 1.25rem; margin-top: 2px;"></i>
-				<div>
-					<strong style="color: var(--as-gray-900); display: block; margin-bottom: 4px;">
-						<?php esc_html_e( 'Quick Tip', 'as-camp-availability-integration' ); ?>
-					</strong>
-					<p style="margin: 0; color: var(--as-gray-700); font-size: 0.875rem;">
-						<?php esc_html_e( 'For comprehensive troubleshooting, enable both Debug Mode and Debug Logging, then check the "Debug Tools" tab to run tests and view logs. Don\'t forget to disable these options when done!', 'as-camp-availability-integration' ); ?>
-					</p>
+					<strong><?php esc_html_e( 'Debug-Protokollierung aktivieren', 'as-camp-availability-integration' ); ?></strong>
+					<p><?php esc_html_e( 'Schreibt detaillierte Log-Einträge in die WordPress debug.log. Erfordert WP_DEBUG und WP_DEBUG_LOG in der wp-config.php.', 'as-camp-availability-integration' ); ?></p>
 				</div>
 			</div>
 		</div>
@@ -1019,11 +880,11 @@ class AS_CAI_Admin {
 				<div style="display: flex; align-items: center; justify-content: space-between;">
 					<h2 class="as-cai-card-title">
 						<i class="fas fa-list"></i>
-						<?php esc_html_e( 'Active Cart Reservations', 'as-camp-availability-integration' ); ?>
+						<?php esc_html_e( 'Aktive Warenkorb-Reservierungen', 'as-camp-availability-integration' ); ?>
 					</h2>
 					<button @click="refreshReservations()" class="as-cai-btn as-cai-btn-primary">
 						<i class="fas fa-sync-alt"></i>
-						<?php esc_html_e( 'Refresh', 'as-camp-availability-integration' ); ?>
+						<?php esc_html_e( 'Aktualisieren', 'as-camp-availability-integration' ); ?>
 					</button>
 				</div>
 			</div>
@@ -1031,18 +892,18 @@ class AS_CAI_Admin {
 				<?php if ( empty( $reservations ) ) : ?>
 					<div class="as-cai-empty-state">
 						<i class="fas fa-inbox"></i>
-						<p><?php esc_html_e( 'No active reservations', 'as-camp-availability-integration' ); ?></p>
+						<p><?php esc_html_e( 'Keine aktiven Reservierungen', 'as-camp-availability-integration' ); ?></p>
 					</div>
 				<?php else : ?>
 					<div style="overflow-x: auto;">
 						<table class="as-cai-table">
 							<thead>
 								<tr>
-									<th><?php esc_html_e( 'Customer ID', 'as-camp-availability-integration' ); ?></th>
-									<th><?php esc_html_e( 'Product', 'as-camp-availability-integration' ); ?></th>
-									<th><?php esc_html_e( 'Quantity', 'as-camp-availability-integration' ); ?></th>
-									<th><?php esc_html_e( 'Created', 'as-camp-availability-integration' ); ?></th>
-									<th><?php esc_html_e( 'Expires', 'as-camp-availability-integration' ); ?></th>
+									<th><?php esc_html_e( 'Kunden-ID', 'as-camp-availability-integration' ); ?></th>
+									<th><?php esc_html_e( 'Produkt', 'as-camp-availability-integration' ); ?></th>
+									<th><?php esc_html_e( 'Menge', 'as-camp-availability-integration' ); ?></th>
+									<th><?php esc_html_e( 'Erstellt', 'as-camp-availability-integration' ); ?></th>
+									<th><?php esc_html_e( 'Läuft ab', 'as-camp-availability-integration' ); ?></th>
 									<th><?php esc_html_e( 'Status', 'as-camp-availability-integration' ); ?></th>
 								</tr>
 							</thead>
@@ -1050,7 +911,7 @@ class AS_CAI_Admin {
 								<?php foreach ( $reservations as $reservation ) : ?>
 									<?php
 									$product        = wc_get_product( $reservation['product_id'] );
-									$product_name   = $product ? $product->get_name() : __( 'Unknown Product', 'as-camp-availability-integration' );
+									$product_name   = $product ? $product->get_name() : __( 'Unbekanntes Produkt', 'as-camp-availability-integration' );
 									$expires_ts     = strtotime( $reservation['expires'] );
 									$now            = time();
 									$time_remaining = $expires_ts - $now;
@@ -1073,26 +934,26 @@ class AS_CAI_Admin {
 											<span style="font-weight: 600;"><?php echo esc_html( $reservation['stock_quantity'] ); ?></span>
 										</td>
 										<td style="font-size: 13px;">
-											<?php echo esc_html( date( 'Y-m-d H:i', strtotime( $reservation['timestamp'] ) ) ); ?>
+											<?php echo esc_html( wp_date( 'Y-m-d H:i', strtotime( $reservation['timestamp'] ) ) ); ?>
 										</td>
 										<td style="font-size: 13px;">
-											<?php echo esc_html( date( 'Y-m-d H:i', strtotime( $reservation['expires'] ) ) ); ?>
+											<?php echo esc_html( wp_date( 'Y-m-d H:i', strtotime( $reservation['expires'] ) ) ); ?>
 										</td>
 										<td>
 											<?php if ( $is_expired ) : ?>
 												<span class="as-cai-badge expired">
 													<i class="fas fa-times-circle"></i>
-													<?php esc_html_e( 'Expired', 'as-camp-availability-integration' ); ?>
+													<?php esc_html_e( 'Abgelaufen', 'as-camp-availability-integration' ); ?>
 												</span>
 											<?php elseif ( $is_expiring ) : ?>
 												<span class="as-cai-badge expiring">
 													<i class="fas fa-exclamation-triangle"></i>
-													<?php esc_html_e( 'Expiring', 'as-camp-availability-integration' ); ?>
+													<?php esc_html_e( 'Läuft ab', 'as-camp-availability-integration' ); ?>
 												</span>
 											<?php else : ?>
 												<span class="as-cai-badge active">
 													<i class="fas fa-check-circle"></i>
-													<?php esc_html_e( 'Active', 'as-camp-availability-integration' ); ?>
+													<?php esc_html_e( 'Aktiv', 'as-camp-availability-integration' ); ?>
 												</span>
 											<?php endif; ?>
 										</td>
@@ -1152,7 +1013,7 @@ class AS_CAI_Admin {
 			<div class="as-cai-card-header">
 				<h2 class="as-cai-card-title">
 					<i class="fas fa-book"></i>
-					<?php esc_html_e( 'Plugin Documentation', 'as-camp-availability-integration' ); ?>
+					<?php esc_html_e( 'Plugin-Dokumentation', 'as-camp-availability-integration' ); ?>
 				</h2>
 			</div>
 
@@ -1187,7 +1048,7 @@ class AS_CAI_Admin {
 						        :class="activeDoc === 'support' ? 'as-cai-doc-tab-active' : 'as-cai-doc-tab'"
 						        style="flex: 1; padding: 16px 20px; border: none; background: transparent; cursor: pointer; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s; border-bottom: 3px solid transparent;">
 							<i class="fas fa-life-ring"></i>
-							<?php esc_html_e( 'Support', 'as-camp-availability-integration' ); ?>
+							<?php esc_html_e( 'Hilfe', 'as-camp-availability-integration' ); ?>
 						</button>
 					</nav>
 				</div>
@@ -1230,10 +1091,10 @@ class AS_CAI_Admin {
 								<i class="fas fa-headset" style="font-size: 3rem; opacity: 0.9;"></i>
 								<div>
 									<h3 style="font-size: 1.5rem; font-weight: 700; margin: 0 0 8px 0; color: white;">
-										<?php esc_html_e( 'Need Help?', 'as-camp-availability-integration' ); ?>
+										<?php esc_html_e( 'Brauchen Sie Hilfe?', 'as-camp-availability-integration' ); ?>
 									</h3>
 									<p style="margin: 0; opacity: 0.9;">
-										<?php esc_html_e( 'Our support team is here to help you!', 'as-camp-availability-integration' ); ?>
+										<?php esc_html_e( 'Unser Support-Team ist für Sie da!', 'as-camp-availability-integration' ); ?>
 									</p>
 								</div>
 							</div>
@@ -1241,7 +1102,7 @@ class AS_CAI_Admin {
 								<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
 									<div>
 										<div style="font-size: 0.875rem; opacity: 0.9; margin-bottom: 4px;">
-											<?php esc_html_e( 'Email Support', 'as-camp-availability-integration' ); ?>
+											<?php esc_html_e( 'E-Mail-Support', 'as-camp-availability-integration' ); ?>
 										</div>
 										<div style="font-weight: 600; font-size: 1.125rem;">
 											kundensupport@zoobro.de
@@ -1249,7 +1110,7 @@ class AS_CAI_Admin {
 									</div>
 									<div>
 										<div style="font-size: 0.875rem; opacity: 0.9; margin-bottom: 4px;">
-											<?php esc_html_e( 'Website', 'as-camp-availability-integration' ); ?>
+											<?php esc_html_e( 'Webseite', 'as-camp-availability-integration' ); ?>
 										</div>
 										<div style="font-weight: 600; font-size: 1.125rem;">
 											<a href="https://ayon.to" target="_blank" style="color: white; text-decoration: underline;">
@@ -1266,7 +1127,7 @@ class AS_CAI_Admin {
 						<div class="as-cai-card-header">
 							<h3 class="as-cai-card-title">
 								<i class="fas fa-info-circle"></i>
-								<?php esc_html_e( 'System Information', 'as-camp-availability-integration' ); ?>
+								<?php esc_html_e( 'Systeminformationen', 'as-camp-availability-integration' ); ?>
 							</h3>
 						</div>
 						<div class="as-cai-card-body">
@@ -1274,7 +1135,7 @@ class AS_CAI_Admin {
 								<table class="as-cai-table">
 									<tbody>
 										<tr>
-											<td style="font-weight: 600;"><?php esc_html_e( 'Plugin Version', 'as-camp-availability-integration' ); ?></td>
+											<td style="font-weight: 600;"><?php esc_html_e( 'Plugin-Version', 'as-camp-availability-integration' ); ?></td>
 											<td><?php echo esc_html( AS_CAI_VERSION ); ?></td>
 										</tr>
 										<tr>
@@ -1356,6 +1217,305 @@ class AS_CAI_Admin {
 	 *
 	 * @return array
 	 */
+	/**
+	 * Render Updates tab with version check, version switcher, and direct install.
+	 *
+	 * @since 1.3.65
+	 */
+	private function render_updates_tab() {
+		?>
+		<div class="as-cai-settings-section">
+			<h3 style="font-size: 1.125rem; font-weight: 600; color: var(--as-gray-900); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+				<i class="fas fa-sync-alt" style="color: var(--as-primary);"></i>
+				<?php esc_html_e( 'Plugin-Updates & Versionsverwaltung', 'as-camp-availability-integration' ); ?>
+			</h3>
+
+			<div class="as-cai-settings-row" style="align-items: center;">
+				<div class="as-cai-settings-label">
+					<strong>
+						<?php
+						printf(
+							/* translators: %s: current version number */
+							esc_html__( 'Installierte Version: %s', 'as-camp-availability-integration' ),
+							esc_html( AS_CAI_VERSION )
+						);
+						?>
+					</strong>
+					<div id="as-cai-update-result" style="margin-top: 8px;"></div>
+				</div>
+				<button type="button" id="as-cai-check-update-btn" class="as-cai-btn as-cai-btn-primary" style="white-space: nowrap;">
+					<i class="fas fa-sync-alt"></i>
+					<?php esc_html_e( 'Auf Update prüfen', 'as-camp-availability-integration' ); ?>
+				</button>
+			</div>
+		</div>
+
+		<script>
+		(function() {
+			var btn = document.getElementById('as-cai-check-update-btn');
+			var result = document.getElementById('as-cai-update-result');
+			if (!btn) return;
+
+			function escHtml(s) {
+				var d = document.createElement('div');
+				d.textContent = s;
+				return d.innerHTML;
+			}
+
+			btn.addEventListener('click', function() {
+				btn.disabled = true;
+				btn.querySelector('i').className = 'fas fa-spinner fa-spin';
+				result.innerHTML = '<span style="color:var(--as-gray-500);"><i class="fas fa-spinner fa-spin"></i> <?php echo esc_js( __( 'Prüfe auf GitHub...', 'as-camp-availability-integration' ) ); ?></span>';
+
+				fetch(asCaiAdmin.ajaxUrl, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+					body: new URLSearchParams({
+						action: 'as_cai_check_update',
+						nonce: asCaiAdmin.nonce
+					})
+				})
+				.then(function(r) { return r.json(); })
+				.then(function(data) {
+					btn.disabled = false;
+					btn.querySelector('i').className = 'fas fa-sync-alt';
+					if (!data.success) {
+						result.innerHTML = '<span style="color:var(--as-danger);">' +
+							'<i class="fas fa-exclamation-triangle"></i> ' + escHtml(data.data.message || '<?php echo esc_js( __( 'Unbekannter Fehler', 'as-camp-availability-integration' ) ); ?>') + '</span>';
+						return;
+					}
+					var d = data.data;
+					var html = '';
+
+					if (d.update_available) {
+						html += '<span style="color:var(--as-success);font-weight:600;">' +
+							'<i class="fas fa-arrow-circle-up"></i> <?php echo esc_js( __( 'Version', 'as-camp-availability-integration' ) ); ?> ' + escHtml(d.latest_version) + ' <?php echo esc_js( __( 'verfügbar!', 'as-camp-availability-integration' ) ); ?></span>';
+					} else {
+						html += '<span style="color:var(--as-success);font-weight:600;">' +
+							'<i class="fas fa-check-circle"></i> <?php echo esc_js( __( 'Neueste Version', 'as-camp-availability-integration' ) ); ?> (' + escHtml(d.latest_version) + ')</span>';
+					}
+
+					if (d.versions && d.versions.length > 0) {
+						html += '<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--as-gray-200);">';
+						html += '<label style="font-weight:600;font-size:13px;color:var(--as-gray-700);display:block;margin-bottom:6px;">' +
+							'<i class="fas fa-code-branch"></i> <?php echo esc_js( __( 'Version auswählen:', 'as-camp-availability-integration' ) ); ?></label>';
+						html += '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">';
+						html += '<select id="as-cai-version-select" class="as-cai-select" style="flex:1;max-width:350px;">';
+						for (var i = 0; i < d.versions.length; i++) {
+							var v = d.versions[i];
+							var isCurrent = (v.version === d.current_version);
+							html += '<option value="' + escHtml(v.version) + '" data-url="' + escHtml(v.html_url) + '" data-download="' + escHtml(v.download_url) + '"' + (isCurrent ? ' selected' : '') + '>' +
+								escHtml(v.version) + (isCurrent ? ' (<?php echo esc_js( __( 'installiert', 'as-camp-availability-integration' ) ); ?>)' : '') +
+								(v.published_at ? ' — ' + escHtml(v.published_at) : '') + '</option>';
+						}
+						html += '</select>';
+						html += '<a id="as-cai-version-link" href="#" target="_blank" class="as-cai-btn" style="white-space:nowrap;">' +
+							'<i class="fas fa-external-link-alt"></i> <?php echo esc_js( __( 'Zum Release', 'as-camp-availability-integration' ) ); ?></a>';
+						html += '<button type="button" id="as-cai-install-btn" class="as-cai-btn as-cai-btn-primary" style="white-space:nowrap;">' +
+							'<i class="fas fa-download"></i> <?php echo esc_js( __( 'Installieren', 'as-camp-availability-integration' ) ); ?></button>';
+						html += '</div>';
+						html += '<div id="as-cai-install-status" style="margin-top:12px;"></div>';
+						html += '</div>';
+					}
+
+					result.innerHTML = html;
+
+					// Wire up version selector
+					var sel = document.getElementById('as-cai-version-select');
+					var link = document.getElementById('as-cai-version-link');
+					var installBtn = document.getElementById('as-cai-install-btn');
+
+					if (sel && link) {
+						function updateLink() {
+							var opt = sel.options[sel.selectedIndex];
+							link.href = opt.getAttribute('data-url') || '#';
+							// Disable install for current version
+							if (installBtn) {
+								var isCurrent = (sel.value === d.current_version);
+								installBtn.disabled = isCurrent;
+								installBtn.style.opacity = isCurrent ? '0.5' : '1';
+							}
+						}
+						sel.addEventListener('change', updateLink);
+						updateLink();
+					}
+
+					// Wire up install button
+					if (installBtn) {
+						installBtn.addEventListener('click', function() {
+							var selectedVersion = sel.value;
+							if (selectedVersion === d.current_version) return;
+
+							var msg = '<?php echo esc_js( __( 'Möchten Sie Version', 'as-camp-availability-integration' ) ); ?> ' + selectedVersion + ' <?php echo esc_js( __( 'wirklich installieren? Das Plugin wird aktualisiert und neu aktiviert.', 'as-camp-availability-integration' ) ); ?>';
+							if (!confirm(msg)) return;
+
+							var statusEl = document.getElementById('as-cai-install-status');
+							installBtn.disabled = true;
+							installBtn.querySelector('i').className = 'fas fa-spinner fa-spin';
+							statusEl.innerHTML = '<div style="padding:12px;background:var(--as-gray-50);border-radius:6px;border:1px solid var(--as-gray-200);">' +
+								'<i class="fas fa-spinner fa-spin"></i> <?php echo esc_js( __( 'Version wird installiert... Bitte warten.', 'as-camp-availability-integration' ) ); ?></div>';
+
+							fetch(asCaiAdmin.ajaxUrl, {
+								method: 'POST',
+								headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+								body: new URLSearchParams({
+									action: 'as_cai_install_version',
+									nonce: asCaiAdmin.nonce,
+									version: selectedVersion
+								})
+							})
+							.then(function(r) { return r.json(); })
+							.then(function(resp) {
+								if (resp.success) {
+									statusEl.innerHTML = '<div style="padding:12px;background:rgba(16,185,129,0.1);border-radius:6px;border:1px solid var(--as-success);color:var(--as-success);">' +
+										'<i class="fas fa-check-circle"></i> ' + escHtml(resp.data.message) +
+										'</div>';
+									// Reload after 2 seconds
+									setTimeout(function() { location.reload(); }, 2000);
+								} else {
+									statusEl.innerHTML = '<div style="padding:12px;background:rgba(239,68,68,0.1);border-radius:6px;border:1px solid var(--as-danger);color:var(--as-danger);">' +
+										'<i class="fas fa-exclamation-triangle"></i> ' + escHtml(resp.data.message || '<?php echo esc_js( __( 'Installation fehlgeschlagen', 'as-camp-availability-integration' ) ); ?>') +
+										'</div>';
+									installBtn.disabled = false;
+									installBtn.querySelector('i').className = 'fas fa-download';
+								}
+							})
+							.catch(function() {
+								statusEl.innerHTML = '<div style="padding:12px;background:rgba(239,68,68,0.1);border-radius:6px;border:1px solid var(--as-danger);color:var(--as-danger);">' +
+									'<i class="fas fa-exclamation-triangle"></i> <?php echo esc_js( __( 'Verbindung fehlgeschlagen', 'as-camp-availability-integration' ) ); ?></div>';
+								installBtn.disabled = false;
+								installBtn.querySelector('i').className = 'fas fa-download';
+							});
+						});
+					}
+				})
+				.catch(function() {
+					btn.disabled = false;
+					btn.querySelector('i').className = 'fas fa-sync-alt';
+					result.innerHTML = '<span style="color:var(--as-danger);"><i class="fas fa-exclamation-triangle"></i> <?php echo esc_js( __( 'Verbindung fehlgeschlagen', 'as-camp-availability-integration' ) ); ?></span>';
+				});
+			});
+		})();
+		</script>
+		<?php
+	}
+
+	/**
+	 * AJAX handler: Install a specific plugin version from GitHub.
+	 *
+	 * Downloads the release ZIP from GitHub and uses WordPress Plugin_Upgrader
+	 * to install it, then reactivates the plugin.
+	 *
+	 * @since 1.3.65
+	 */
+	public function ajax_install_version() {
+		check_ajax_referer( 'as_cai_admin_nonce', 'nonce' );
+
+		if ( ! current_user_can( 'update_plugins' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Keine Berechtigung', 'as-camp-availability-integration' ) ) );
+		}
+
+		$version = isset( $_POST['version'] ) ? sanitize_text_field( wp_unslash( $_POST['version'] ) ) : '';
+		if ( empty( $version ) ) {
+			wp_send_json_error( array( 'message' => __( 'Keine Version angegeben', 'as-camp-availability-integration' ) ) );
+		}
+
+		$repo = 'zb-marc/Camp-Availability-Integration';
+
+		// Fetch the specific release by tag.
+		$args = array(
+			'headers' => array(
+				'Accept'     => 'application/vnd.github.v3+json',
+				'User-Agent' => 'WordPress/' . get_bloginfo( 'version' ),
+			),
+			'timeout' => 15,
+		);
+
+		$token = defined( 'AS_CAI_GITHUB_TOKEN' ) ? AS_CAI_GITHUB_TOKEN : '';
+		if ( $token ) {
+			$args['headers']['Authorization'] = 'token ' . $token;
+		}
+
+		// Try tag with v prefix first, then without.
+		$tag_variants = array( $version, 'v' . $version );
+		$release      = false;
+
+		foreach ( $tag_variants as $tag ) {
+			$response = wp_remote_get(
+				'https://api.github.com/repos/' . $repo . '/releases/tags/' . rawurlencode( $tag ),
+				$args
+			);
+
+			if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
+				$release = json_decode( wp_remote_retrieve_body( $response ) );
+				break;
+			}
+		}
+
+		if ( ! $release || empty( $release->zipball_url ) ) {
+			wp_send_json_error( array(
+				'message' => sprintf(
+					/* translators: %s: version number */
+					__( 'Release %s nicht auf GitHub gefunden', 'as-camp-availability-integration' ),
+					$version
+				),
+			) );
+		}
+
+		// Get download URL (prefer uploaded ZIP asset, fallback to zipball).
+		$download_url = '';
+		if ( ! empty( $release->assets ) && is_array( $release->assets ) ) {
+			foreach ( $release->assets as $asset ) {
+				if ( isset( $asset->browser_download_url ) && preg_match( '/\.zip$/i', $asset->name ) ) {
+					$download_url = $asset->browser_download_url;
+					break;
+				}
+			}
+		}
+		if ( empty( $download_url ) ) {
+			$download_url = $release->zipball_url;
+		}
+
+		// Use WordPress Plugin_Upgrader to install.
+		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+		$skin     = new WP_Ajax_Upgrader_Skin();
+		$upgrader = new Plugin_Upgrader( $skin );
+
+		// Deactivate plugin before upgrade.
+		$plugin_basename = defined( 'AS_CAI_PLUGIN_BASENAME' ) ? AS_CAI_PLUGIN_BASENAME : 'camp-availability-integration/as-camp-availability-integration.php';
+		deactivate_plugins( $plugin_basename );
+
+		// Install the new version.
+		$result = $upgrader->install( $download_url, array( 'overwrite_package' => true ) );
+
+		if ( is_wp_error( $result ) ) {
+			activate_plugins( $plugin_basename );
+			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+		}
+
+		if ( ! $result ) {
+			activate_plugins( $plugin_basename );
+			wp_send_json_error( array( 'message' => __( 'Installation fehlgeschlagen', 'as-camp-availability-integration' ) ) );
+		}
+
+		// Reactivate plugin.
+		activate_plugins( $plugin_basename );
+
+		// Clear updater cache.
+		delete_transient( 'as_cai_github_updater_cache' );
+		delete_site_transient( 'update_plugins' );
+
+		wp_send_json_success( array(
+			'message' => sprintf(
+				/* translators: %s: version number */
+				__( 'Version %s wurde erfolgreich installiert! Seite wird neu geladen...', 'as-camp-availability-integration' ),
+				$version
+			),
+		) );
+	}
+
 	private function get_dashboard_stats() {
 		$stats = array(
 			'active_reservations' => 0,
@@ -1385,16 +1545,16 @@ class AS_CAI_Admin {
 		check_ajax_referer( 'as_cai_admin_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Permission denied', 'as-camp-availability-integration' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Keine Berechtigung', 'as-camp-availability-integration' ) ) );
 		}
 
 		if ( class_exists( 'AS_CAI_Reservation_DB' ) ) {
 			$db = AS_CAI_Reservation_DB::instance();
 			$db->flush_all_reservations();
-			wp_send_json_success( array( 'message' => __( 'All reservations cleared', 'as-camp-availability-integration' ) ) );
+			wp_send_json_success( array( 'message' => __( 'Alle Reservierungen gelöscht', 'as-camp-availability-integration' ) ) );
 		}
 
-		wp_send_json_error( array( 'message' => __( 'Reservation system not available', 'as-camp-availability-integration' ) ) );
+		wp_send_json_error( array( 'message' => __( 'Reservierungssystem nicht verfügbar', 'as-camp-availability-integration' ) ) );
 	}
 
 	/**
@@ -1404,7 +1564,7 @@ class AS_CAI_Admin {
 		check_ajax_referer( 'as_cai_admin_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Permission denied', 'as-camp-availability-integration' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Keine Berechtigung', 'as-camp-availability-integration' ) ) );
 		}
 
 		$stats = $this->get_dashboard_stats();
@@ -1518,31 +1678,29 @@ class AS_CAI_Admin {
 			<!-- Header -->
 			<h3 style="font-size: 1.125rem; font-weight: 600; color: var(--as-gray-900); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
 				<i class="fas fa-microscope" style="color: var(--as-primary);"></i>
-				<?php esc_html_e( 'Advanced Debug System', 'as-camp-availability-integration' ); ?>
+				<?php esc_html_e( 'Erweitertes Debug-System', 'as-camp-availability-integration' ); ?>
 			</h3>
 
-			<!-- Info Box -->
 			<div class="as-cai-info-box" style="margin-bottom: 24px;">
 				<p style="margin: 0; font-weight: 600; color: var(--as-info); margin-bottom: 8px;">
-					<i class="fas fa-info-circle"></i> <?php esc_html_e( 'About Advanced Debug', 'as-camp-availability-integration' ); ?>
+					<i class="fas fa-info-circle"></i> <?php esc_html_e( 'Über erweitertes Debugging', 'as-camp-availability-integration' ); ?>
 				</p>
 				<p style="margin: 0; color: var(--as-gray-700); font-size: 0.875rem;">
-					<?php esc_html_e( 'Advanced Debug provides granular control over debug logging with separate toggles for each area. Logs are written to a separate file for easy troubleshooting without cluttering WordPress debug.log.', 'as-camp-availability-integration' ); ?>
+					<?php esc_html_e( 'Erweitertes Debugging ermöglicht granulare Kontrolle über die Protokollierung mit separaten Schaltern für jeden Bereich. Logs werden in eine separate Datei geschrieben.', 'as-camp-availability-integration' ); ?>
 				</p>
 				<p style="margin: 8px 0 0 0; color: var(--as-gray-700); font-size: 0.875rem;">
-					<strong><?php esc_html_e( 'Log File:', 'as-camp-availability-integration' ); ?></strong> <?php echo esc_html( $log_file ); ?><br>
-					<strong><?php esc_html_e( 'Current Size:', 'as-camp-availability-integration' ); ?></strong> <?php echo esc_html( $log_size ); ?>
+					<strong><?php esc_html_e( 'Log-Datei:', 'as-camp-availability-integration' ); ?></strong> <?php echo esc_html( $log_file ); ?><br>
+					<strong><?php esc_html_e( 'Aktuelle Größe:', 'as-camp-availability-integration' ); ?></strong> <?php echo esc_html( $log_size ); ?>
 				</p>
 			</div>
 
-			<!-- Master Toggle -->
 			<div class="as-cai-settings-row">
 				<div class="as-cai-settings-label">
 					<strong>
 						<i class="fas fa-power-off" style="color: var(--as-primary);"></i>
-						<?php esc_html_e( 'Enable Advanced Debug', 'as-camp-availability-integration' ); ?>
+						<?php esc_html_e( 'Erweitertes Debugging aktivieren', 'as-camp-availability-integration' ); ?>
 					</strong>
-					<p><?php esc_html_e( 'Master switch for advanced debug logging. Must be enabled to use area-specific debugging.', 'as-camp-availability-integration' ); ?></p>
+					<p><?php esc_html_e( 'Hauptschalter für erweiterte Debug-Protokollierung. Muss aktiviert sein, um bereichsspezifisches Debugging zu nutzen.', 'as-camp-availability-integration' ); ?></p>
 				</div>
 				<label class="as-cai-switch">
 					<input type="checkbox" 
@@ -1557,7 +1715,7 @@ class AS_CAI_Admin {
 			<div style="background: var(--as-gray-50); padding: 20px; border-radius: 8px; margin-top: 20px;">
 				<h4 style="font-size: 1rem; font-weight: 600; color: var(--as-gray-900); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
 					<i class="fas fa-layer-group" style="color: var(--as-primary);"></i>
-					<?php esc_html_e( 'Debug Areas', 'as-camp-availability-integration' ); ?>
+					<?php esc_html_e( 'Debug-Bereiche', 'as-camp-availability-integration' ); ?>
 				</h4>
 
 				<?php foreach ( $debug_areas as $area => $config ) : ?>
@@ -1582,42 +1740,42 @@ class AS_CAI_Admin {
 			<div style="margin-top: 32px;" x-data="{ logs: [], loading: false, filter: '', lines: 100 }">
 				<h4 style="font-size: 1rem; font-weight: 600; color: var(--as-gray-900); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
 					<i class="fas fa-scroll" style="color: var(--as-primary);"></i>
-					<?php esc_html_e( 'Live Log Viewer', 'as-camp-availability-integration' ); ?>
+					<?php esc_html_e( 'Live-Protokollansicht', 'as-camp-availability-integration' ); ?>
 				</h4>
 
 				<!-- Controls -->
 				<div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
 					<input type="text" 
 					       x-model="filter" 
-					       placeholder="<?php esc_attr_e( 'Filter logs...', 'as-camp-availability-integration' ); ?>" 
+					       placeholder="<?php esc_attr_e( 'Logs filtern...', 'as-camp-availability-integration' ); ?>" 
 					       class="as-cai-input" 
 					       style="flex: 1; min-width: 200px;">
 					<select x-model="lines" class="as-cai-select">
-						<option value="50">50 lines</option>
-						<option value="100" selected>100 lines</option>
-						<option value="200">200 lines</option>
-						<option value="500">500 lines</option>
+						<option value="50">50 <?php esc_html_e( 'Zeilen', 'as-camp-availability-integration' ); ?></option>
+						<option value="100" selected>100 <?php esc_html_e( 'Zeilen', 'as-camp-availability-integration' ); ?></option>
+						<option value="200">200 <?php esc_html_e( 'Zeilen', 'as-camp-availability-integration' ); ?></option>
+						<option value="500">500 <?php esc_html_e( 'Zeilen', 'as-camp-availability-integration' ); ?></option>
 					</select>
 					<button type="button" 
 					        @click="loadLogs()" 
 					        :disabled="loading"
 					        class="as-cai-btn as-cai-btn-primary">
 						<i class="fas fa-sync-alt" :class="{ 'fa-spin': loading }"></i>
-						<?php esc_html_e( 'Refresh', 'as-camp-availability-integration' ); ?>
+						<?php esc_html_e( 'Aktualisieren', 'as-camp-availability-integration' ); ?>
 					</button>
-					<button type="button" 
-					        @click="downloadLogs()" 
-					        class="as-cai-btn" 
+					<button type="button"
+					        @click="downloadLogs()"
+					        class="as-cai-btn"
 					        style="background: var(--as-success); color: white;">
 						<i class="fas fa-download"></i>
-						<?php esc_html_e( 'Download', 'as-camp-availability-integration' ); ?>
+						<?php esc_html_e( 'Herunterladen', 'as-camp-availability-integration' ); ?>
 					</button>
-					<button type="button" 
-					        @click="clearLogs()" 
-					        class="as-cai-btn" 
+					<button type="button"
+					        @click="clearLogs()"
+					        class="as-cai-btn"
 					        style="background: var(--as-danger); color: white;">
 						<i class="fas fa-trash"></i>
-						<?php esc_html_e( 'Clear Logs', 'as-camp-availability-integration' ); ?>
+						<?php esc_html_e( 'Logs löschen', 'as-camp-availability-integration' ); ?>
 					</button>
 				</div>
 
@@ -1625,12 +1783,12 @@ class AS_CAI_Admin {
 				<div style="background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.875rem; max-height: 500px; overflow-y: auto;">
 					<template x-if="loading">
 						<div style="text-align: center; color: var(--as-primary);">
-							<i class="fas fa-spinner fa-spin"></i> Loading logs...
+							<i class="fas fa-spinner fa-spin"></i> <?php esc_html_e( 'Logs werden geladen...', 'as-camp-availability-integration' ); ?>
 						</div>
 					</template>
 					<template x-if="!loading && logs.length === 0">
 						<div style="text-align: center; color: var(--as-gray-500);">
-							<i class="fas fa-inbox"></i> No logs found. Enable debugging and perform actions to generate logs.
+							<i class="fas fa-inbox"></i> <?php esc_html_e( 'Keine Logs gefunden. Aktivieren Sie das Debugging und führen Sie Aktionen aus.', 'as-camp-availability-integration' ); ?>
 						</div>
 					</template>
 					<template x-for="log in logs" :key="log">
@@ -1694,7 +1852,7 @@ class AS_CAI_Admin {
 			}
 
 			function clearLogs() {
-				if (!confirm('<?php esc_html_e( 'Are you sure you want to clear all debug logs? This cannot be undone.', 'as-camp-availability-integration' ); ?>')) {
+				if (!confirm('<?php echo esc_js( __( 'Sind Sie sicher, dass Sie alle Debug-Logs löschen möchten? Dies kann nicht rückgängig gemacht werden.', 'as-camp-availability-integration' ) ); ?>')) {
 					return;
 				}
 				fetch(asCaiAdmin.ajaxUrl, {
@@ -1711,7 +1869,7 @@ class AS_CAI_Admin {
 				.then(data => {
 					if (data.success) {
 						this.logs = [];
-						alert('<?php esc_html_e( 'Logs cleared successfully', 'as-camp-availability-integration' ); ?>');
+						alert('<?php echo esc_js( __( 'Logs erfolgreich gelöscht', 'as-camp-availability-integration' ) ); ?>');
 					} else {
 						alert('Error clearing logs');
 					}

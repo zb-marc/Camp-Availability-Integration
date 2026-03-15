@@ -230,25 +230,38 @@ class AS_CAI_GitHub_Updater {
 		if ( ! empty( $release->assets ) && is_array( $release->assets ) ) {
 			foreach ( $release->assets as $asset ) {
 				if ( isset( $asset->browser_download_url ) && preg_match( '/\.zip$/i', $asset->name ) ) {
-					$url = $asset->browser_download_url;
-					if ( ! empty( $this->access_token ) ) {
-						$url = add_query_arg( 'access_token', $this->access_token, $url );
-					}
-					return $url;
+					return $asset->browser_download_url;
 				}
 			}
 		}
 
 		// Fallback: Use source code zipball.
 		if ( ! empty( $release->zipball_url ) ) {
-			$url = $release->zipball_url;
-			if ( ! empty( $this->access_token ) ) {
-				$url = add_query_arg( 'access_token', $this->access_token, $url );
-			}
-			return $url;
+			return $release->zipball_url;
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get HTTP args for GitHub API requests (includes auth token if set).
+	 *
+	 * @return array
+	 */
+	public function get_api_args() {
+		$args = array(
+			'headers' => array(
+				'Accept'     => 'application/vnd.github.v3+json',
+				'User-Agent' => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . home_url(),
+			),
+			'timeout' => 15,
+		);
+
+		if ( ! empty( $this->access_token ) ) {
+			$args['headers']['Authorization'] = 'token ' . $this->access_token;
+		}
+
+		return $args;
 	}
 
 	/**

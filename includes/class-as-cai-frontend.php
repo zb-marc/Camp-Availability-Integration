@@ -293,11 +293,9 @@ class AS_CAI_Frontend {
 			true
 		);
 		
-		// Add HTML comment to show fallback was used
-		add_action( 'wp_footer', function() use ( $cache_buster ) {
-			echo "\n<!-- [AS-CAI v1.3.57 FALLBACK] Countdown script loaded via FALLBACK method (WooCommerce page detected)! Version: " . esc_html( $cache_buster ) . " -->\n";
-			echo "<!-- [AS-CAI v1.3.57 FALLBACK] This means WooCommerce conditional tags (is_shop, is_product_category) failed to detect this as a shop page -->\n";
-			echo "<!-- [AS-CAI v1.3.57 FALLBACK] URL: " . esc_html( $_SERVER['REQUEST_URI'] ?? 'unknown' ) . " -->\n\n";
+		// Add HTML comment to show fallback was used (no sensitive data).
+		add_action( 'wp_footer', function() {
+			echo "\n<!-- [AS-CAI] Countdown script loaded via fallback method -->\n";
 		}, 999 );
 		
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {

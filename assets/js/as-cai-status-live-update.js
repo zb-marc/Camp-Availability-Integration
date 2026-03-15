@@ -9,6 +9,8 @@
 
 	var StatusLiveUpdate = function () {
 		this.updateInterval = 15000; // 15 seconds
+		this.refreshIntervals = [];
+		this.countdownInterval = null;
 		this.init();
 	};
 
@@ -36,7 +38,7 @@
 
 		// Countdown updates every second.
 		this.updateCountdowns();
-		setInterval(function () {
+		this.countdownInterval = setInterval(function () {
 			self.updateCountdowns();
 		}, 1000);
 	};
@@ -45,16 +47,17 @@
 		var self     = this;
 		var interval = $box.data('refresh-interval') || this.updateInterval;
 
-		setInterval(function () {
+		var id = setInterval(function () {
 			self.refreshStatus($box);
 		}, interval);
+		this.refreshIntervals.push(id);
 	};
 
 	StatusLiveUpdate.prototype.refreshStatus = function ($box) {
 		var self      = this;
 		var productId = $box.data('product-id');
 
-		if (!productId || !as_cai_vars) {
+		if (!productId || typeof as_cai_vars === 'undefined') {
 			return;
 		}
 
@@ -101,12 +104,12 @@
 		// Update badges.
 		if (data.reserved > 0) {
 			if ($box.find('.reserved-badge').length) {
-				$box.find('.reserved-badge').html('&#128336; ' + data.reserved + ' reserviert');
+				$box.find('.reserved-badge').text('\uD83D\uDD56 ' + data.reserved + ' reserviert');
 			}
 		}
 		if (data.sold > 0) {
 			if ($box.find('.sold-badge').length) {
-				$box.find('.sold-badge').html('&#10003; ' + data.sold + ' verkauft');
+				$box.find('.sold-badge').text('\u2713 ' + data.sold + ' verkauft');
 			}
 		}
 
@@ -198,7 +201,9 @@
 	};
 
 	StatusLiveUpdate.prototype.showToast = function (message, status) {
-		var $toast = $('<div class="as-cai-toast toast-' + status.replace('_', '-') + '">' + message + '</div>')
+		var $toast = $('<div></div>')
+			.addClass('as-cai-toast toast-' + status.replace('_', '-'))
+			.text(message)
 			.appendTo('body');
 
 		setTimeout(function () {

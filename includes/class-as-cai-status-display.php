@@ -258,11 +258,13 @@ class AS_CAI_Status_Display {
 		// Check our reservation system first.
 		if ( class_exists( 'AS_CAI_Reservation_DB' ) ) {
 			$db    = AS_CAI_Reservation_DB::instance();
-			$table = $wpdb->prefix . 'as_cai_reservations';
+			$table = $wpdb->prefix . 'as_cai_cart_reservations';
 
-			if ( $wpdb->get_var( "SHOW TABLES LIKE '{$table}'" ) === $table ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 				$next_expiry = $wpdb->get_var( $wpdb->prepare(
-					"SELECT MIN(expires_at) FROM {$table} WHERE product_id = %d AND expires_at > %s",
+					"SELECT MIN(expires) FROM {$table} WHERE product_id = %d AND expires > %s",
 					$product_id,
 					current_time( 'mysql', true )
 				) );
@@ -501,8 +503,16 @@ class AS_CAI_Status_Display {
 		$email      = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
 
 		if ( ! $product_id || ! is_email( $email ) ) {
-			wp_send_json_error( array( 'message' => 'Ungültige Daten' ) );
+			wp_send_json_error( array( 'message' => __( 'Ungültige Daten', 'as-camp-availability-integration' ) ) );
 		}
+
+		// Rate limiting: max 3 notification registrations per IP per hour.
+		$rate_key = 'as_cai_notify_' . md5( $_SERVER['REMOTE_ADDR'] ?? 'unknown' );
+		$attempts = (int) get_transient( $rate_key );
+		if ( $attempts >= 3 ) {
+			wp_send_json_error( array( 'message' => __( 'Zu viele Anfragen. Bitte versuchen Sie es später erneut.', 'as-camp-availability-integration' ) ) );
+		}
+		set_transient( $rate_key, $attempts + 1, HOUR_IN_SECONDS );
 
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'as_cai_notifications';
@@ -548,7 +558,8 @@ class AS_CAI_Status_Display {
 		$table_name      = $wpdb->prefix . 'as_cai_notifications';
 		$charset_collate = $wpdb->get_charset_collate();
 
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '{$table_name}'" ) === $table_name ) {
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) ) === $table_name ) {
 			return;
 		}
 
