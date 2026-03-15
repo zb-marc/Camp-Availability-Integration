@@ -1420,30 +1420,29 @@ class AS_CAI_Admin {
 			wp_send_json_error( array( 'message' => __( 'Keine Version angegeben', 'as-camp-availability-integration' ) ) );
 		}
 
-		$repo = 'zb-marc/Camp-Availability-Integration';
+		$repo  = 'zb-marc/Camp-Availability-Integration';
+		$token = defined( 'AS_CAI_GITHUB_TOKEN' ) ? AS_CAI_GITHUB_TOKEN : '';
 
-		// Fetch the specific release by tag.
-		$args = array(
+		// Build GitHub API request args.
+		$api_args = array(
 			'headers' => array(
 				'Accept'     => 'application/vnd.github.v3+json',
 				'User-Agent' => 'WordPress/' . get_bloginfo( 'version' ),
 			),
 			'timeout' => 15,
 		);
-
-		$token = defined( 'AS_CAI_GITHUB_TOKEN' ) ? AS_CAI_GITHUB_TOKEN : '';
 		if ( $token ) {
-			$args['headers']['Authorization'] = 'token ' . $token;
+			$api_args['headers']['Authorization'] = 'token ' . $token;
 		}
 
-		// Try tag with v prefix first, then without.
+		// Try tag without and with v prefix.
 		$tag_variants = array( $version, 'v' . $version );
 		$release      = false;
 
 		foreach ( $tag_variants as $tag ) {
 			$response = wp_remote_get(
 				'https://api.github.com/repos/' . $repo . '/releases/tags/' . rawurlencode( $tag ),
-				$args
+				$api_args
 			);
 
 			if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
@@ -1476,75 +1475,90 @@ class AS_CAI_Admin {
 			$download_url = $release->zipball_url;
 		}
 
-		// Use WordPress Plugin_Upgrader to install.
-		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		// --- Manual download, extract, and replace approach ---
 		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 		$plugin_basename = defined( 'AS_CAI_PLUGIN_BASENAME' ) ? AS_CAI_PLUGIN_BASENAME : 'camp-availability-integration/as-camp-availability-integration.php';
 		$plugin_slug     = dirname( $plugin_basename );
+		$plugin_dir      = WP_PLUGIN_DIR . '/' . $plugin_slug;
 
-		// Add auth header for GitHub API downloads (needed for private repos and zipball URLs).
-		$auth_filter = null;
+		// 1. Download the ZIP file.
+		$download_args = array( 'timeout' => 60 );
 		if ( $token ) {
-			$auth_filter = function ( $parsed_args, $url ) use ( $token ) {
-				if ( false !== strpos( $url, 'api.github.com' ) || false !== strpos( $url, 'codeload.github.com' ) ) {
-					$parsed_args['headers']['Authorization'] = 'token ' . $token;
-				}
-				return $parsed_args;
-			};
-			add_filter( 'http_request_args', $auth_filter, 10, 2 );
+			$download_args['headers'] = array( 'Authorization' => 'token ' . $token );
+		}
+		$tmp_file = download_url( $download_url, 60, $download_args );
+
+		if ( is_wp_error( $tmp_file ) ) {
+			wp_send_json_error( array(
+				'message' => __( 'Download fehlgeschlagen: ', 'as-camp-availability-integration' ) . $tmp_file->get_error_message(),
+			) );
 		}
 
-		// Add a temporary filter to rename the extracted folder.
-		// GitHub zipballs extract to "owner-repo-hash/" which doesn't match our slug.
-		$rename_filter = function ( $response, $hook_extra, $result ) use ( $plugin_slug, $plugin_basename ) {
-			global $wp_filesystem;
+		// 2. Create a temporary directory and unzip.
+		$tmp_dir = get_temp_dir() . 'as_cai_update_' . time() . '/';
+		wp_mkdir_p( $tmp_dir );
 
-			$proper_destination = WP_PLUGIN_DIR . '/' . $plugin_slug;
+		$unzip_result = unzip_file( $tmp_file, $tmp_dir );
+		wp_delete_file( $tmp_file );
 
-			if ( isset( $result['destination'] ) && $result['destination'] !== $proper_destination ) {
-				$wp_filesystem->move( $result['destination'], $proper_destination );
-				$result['destination'] = $proper_destination;
+		if ( is_wp_error( $unzip_result ) ) {
+			$this->recursive_rmdir( $tmp_dir );
+			wp_send_json_error( array(
+				'message' => __( 'Entpacken fehlgeschlagen: ', 'as-camp-availability-integration' ) . $unzip_result->get_error_message(),
+			) );
+		}
+
+		// 3. Find the extracted directory (GitHub creates "owner-repo-hash/").
+		$extracted_dirs = glob( $tmp_dir . '*', GLOB_ONLYDIR );
+		if ( empty( $extracted_dirs ) ) {
+			$this->recursive_rmdir( $tmp_dir );
+			wp_send_json_error( array( 'message' => __( 'Entpackter Ordner nicht gefunden', 'as-camp-availability-integration' ) ) );
+		}
+		$source_dir = $extracted_dirs[0];
+
+		// Verify it contains the main plugin file.
+		if ( ! file_exists( $source_dir . '/as-camp-availability-integration.php' ) ) {
+			$this->recursive_rmdir( $tmp_dir );
+			wp_send_json_error( array( 'message' => __( 'Plugin-Datei nicht im Archiv gefunden', 'as-camp-availability-integration' ) ) );
+		}
+
+		// 4. Remove old plugin directory and move new one in place.
+		if ( is_dir( $plugin_dir ) ) {
+			$backup_dir = $plugin_dir . '_backup_' . time();
+			if ( ! rename( $plugin_dir, $backup_dir ) ) {
+				$this->recursive_rmdir( $tmp_dir );
+				wp_send_json_error( array( 'message' => __( 'Backup des alten Plugins fehlgeschlagen', 'as-camp-availability-integration' ) ) );
 			}
-
-			return $result;
-		};
-		add_filter( 'upgrader_post_install', $rename_filter, 10, 3 );
-
-		$skin     = new WP_Ajax_Upgrader_Skin();
-		$upgrader = new Plugin_Upgrader( $skin );
-
-		// Deactivate plugin before upgrade.
-		deactivate_plugins( $plugin_basename );
-
-		// Install the new version.
-		$result = $upgrader->install( $download_url, array( 'overwrite_package' => true ) );
-
-		// Remove temporary filters.
-		remove_filter( 'upgrader_post_install', $rename_filter, 10 );
-		if ( $auth_filter ) {
-			remove_filter( 'http_request_args', $auth_filter, 10 );
+		} else {
+			$backup_dir = '';
 		}
 
-		if ( is_wp_error( $result ) ) {
-			activate_plugins( $plugin_basename );
-			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+		if ( ! rename( $source_dir, $plugin_dir ) ) {
+			// Restore backup on failure.
+			if ( $backup_dir && is_dir( $backup_dir ) ) {
+				rename( $backup_dir, $plugin_dir );
+			}
+			$this->recursive_rmdir( $tmp_dir );
+			wp_send_json_error( array( 'message' => __( 'Verschieben des neuen Plugins fehlgeschlagen', 'as-camp-availability-integration' ) ) );
 		}
 
-		if ( ! $result ) {
-			activate_plugins( $plugin_basename );
-			$errors = $skin->get_errors();
-			$msg    = $errors->has_errors() ? $errors->get_error_message() : __( 'Installation fehlgeschlagen', 'as-camp-availability-integration' );
-			wp_send_json_error( array( 'message' => $msg ) );
+		// 5. Cleanup backup and temp directory.
+		if ( $backup_dir && is_dir( $backup_dir ) ) {
+			$this->recursive_rmdir( $backup_dir );
+		}
+		$this->recursive_rmdir( $tmp_dir );
+
+		// 6. Ensure plugin is active.
+		if ( ! is_plugin_active( $plugin_basename ) ) {
+			activate_plugin( $plugin_basename );
 		}
 
-		// Reactivate plugin.
-		activate_plugins( $plugin_basename );
-
-		// Clear updater cache.
+		// 7. Clear caches.
 		delete_transient( 'as_cai_github_updater_cache' );
 		delete_site_transient( 'update_plugins' );
+		wp_cache_flush();
 
 		wp_send_json_success( array(
 			'message' => sprintf(
@@ -1553,6 +1567,29 @@ class AS_CAI_Admin {
 				$version
 			),
 		) );
+	}
+
+	/**
+	 * Recursively remove a directory and its contents.
+	 *
+	 * @param string $dir Directory path.
+	 */
+	private function recursive_rmdir( $dir ) {
+		if ( ! is_dir( $dir ) ) {
+			return;
+		}
+		$items = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator( $dir, RecursiveDirectoryIterator::SKIP_DOTS ),
+			RecursiveIteratorIterator::CHILD_FIRST
+		);
+		foreach ( $items as $item ) {
+			if ( $item->isDir() ) {
+				rmdir( $item->getRealPath() );
+			} else {
+				wp_delete_file( $item->getRealPath() );
+			}
+		}
+		rmdir( $dir );
 	}
 
 	private function get_dashboard_stats() {
