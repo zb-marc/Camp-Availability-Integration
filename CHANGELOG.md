@@ -7,6 +7,13 @@ und dieses Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [1.3.78] - 2026-03-15
+
+### Removed
+- **Status-Display-Box komplett entfernt** — Verfügbarkeits-Anzeige war unzuverlässig und zeigte falsche Informationen
+  - Status-Box wird nicht mehr auf Produktseiten gerendert
+  - Sold-out-Prüfung für Button-Sichtbarkeit nutzt nun direkt WooCommerce Stock
+
 ## [1.3.77] - 2026-03-15
 
 ### Fixed

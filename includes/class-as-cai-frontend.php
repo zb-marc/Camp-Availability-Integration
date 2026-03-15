@@ -400,9 +400,12 @@ class AS_CAI_Frontend {
 
 		// v1.3.74: Hide if sold out (no available seats).
 		if ( ! $should_hide ) {
-			$status_data = AS_CAI_Status_Display::get_detailed_availability_status( $product_id );
-			if ( $status_data && 'sold_out' === $status_data['status'] ) {
-				$should_hide = true;
+			$product_obj = wc_get_product( $product_id );
+			if ( $product_obj && $product_obj->managing_stock() ) {
+				$stock = $product_obj->get_stock_quantity();
+				if ( null !== $stock && $stock <= 0 ) {
+					$should_hide = true;
+				}
 			}
 		}
 
