@@ -3,7 +3,7 @@
 **Version:** 1.3.58  
 **Author:** Marc Mirschel  
 **Author URI:** https://mirschel.biz  
-**Plugin URI:** https://battleground.de
+**Plugin URI:** https://ayon.to
 
 ## Beschreibung
 
@@ -121,7 +121,7 @@ Das Plugin arbeitet automatisch, sobald es aktiviert ist:
 **Bei ALLEN Produkttypen:**
 1. Der Countdown-Timer wird automatisch angezeigt, wenn die Produkt-Verfügbarkeit aktiviert ist
 2. Timer zeigt Countdown bis zum Verfügbarkeitsbeginn
-3. Einheitliches Battleground Custom Design
+3. Einheitliches Ayon Custom Design
 
 **Bei "Auditorium" Produkten:**
 1. Der "Parzelle auswählen"-Button wird ausgeblendet, wenn das Produkt noch nicht verfügbar ist
@@ -215,7 +215,7 @@ Das Plugin verwendet ein einheitliches Design-System:
 
 Für Support und Fragen:
 - **Email:** kundensupport@zoobro.de
-- **Website:** https://battleground.de
+- **Website:** https://ayon.to
 - **Entwickler:** Marc Mirschel (https://mirschel.biz)
 
 ## Kompatibilität
@@ -260,4 +260,4 @@ Entwickelt für professionelle Camp-Buchungssysteme mit Integration von:
 
 ---
 
-**Powered by Battleground.de**
+**Powered by Ayon.de**

@@ -312,7 +312,7 @@ class AS_CAI_Admin {
 					<div style="font-size: 0.875rem; opacity: 0.9; margin-bottom: 5px;">
 						<?php esc_html_e( 'Powered by', 'as-camp-availability-integration' ); ?>
 					</div>
-					<div style="font-size: 1.125rem; font-weight: 600;">Battleground.de</div>
+					<div style="font-size: 1.125rem; font-weight: 600;">Ayon.to</div>
 				</div>
 			</div>
 		</div>
@@ -529,7 +529,7 @@ class AS_CAI_Admin {
 							<i class="fas fa-tools"></i>
 							<?php esc_html_e( 'Debug Tools', 'as-camp-availability-integration' ); ?>
 						</button>
-						<button type="button" @click="activeTab = 'advanced_debug'" 
+						<button type="button" @click="activeTab = 'advanced_debug'"
 						        :class="activeTab === 'advanced_debug' ? 'as-cai-settings-tab-active' : 'as-cai-settings-tab'"
 						        style="flex: 1; padding: 16px 20px; border: none; background: transparent; cursor: pointer; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s; border-bottom: 3px solid transparent;">
 							<i class="fas fa-microscope"></i>
@@ -539,7 +539,7 @@ class AS_CAI_Admin {
 				</div>
 
 				<!-- Settings Form (for first 3 tabs and advanced debug) -->
-				<form method="post" action="options.php" x-show="activeTab !== 'debug_tools'">
+				<form method="post" action="options.php" x-show="activeTab !== 'debug_tools'"
 					<!-- General Settings Tab -->
 					<div x-show="activeTab === 'general'" style="padding: 24px;">
 						<?php settings_fields( 'as_cai_general_settings' ); ?>
@@ -1207,8 +1207,8 @@ class AS_CAI_Admin {
 											<?php esc_html_e( 'Website', 'as-camp-availability-integration' ); ?>
 										</div>
 										<div style="font-weight: 600; font-size: 1.125rem;">
-											<a href="https://battleground.de" target="_blank" style="color: white; text-decoration: underline;">
-												battleground.de
+											<a href="https://ayon.to" target="_blank" style="color: white; text-decoration: underline;">
+												ayon.to
 											</a>
 										</div>
 									</div>

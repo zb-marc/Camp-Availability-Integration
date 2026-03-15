@@ -188,7 +188,7 @@ Sicherheitslücken bitte verantwortungsvoll melden:
 
 **Support:**
 - Email: kundensupport@zoobro.de
-- Forum: https://battleground.de/support
+- Forum: https://ayon.to/support
 
 ---
 

@@ -92,15 +92,13 @@ class AS_CAI_GitHub_Updater {
 		$this->basename = defined( 'AS_CAI_PLUGIN_BASENAME' ) ? AS_CAI_PLUGIN_BASENAME : $this->slug . '/' . $this->slug . '.php';
 		$this->version  = defined( 'AS_CAI_VERSION' ) ? AS_CAI_VERSION : '0.0.0';
 
-		// Repository: Read from option or use default.
-		$this->repo = get_option( 'as_cai_github_repo', '' );
+		// Repository is hardcoded — no configuration needed.
+		$this->repo = 'zb-marc/Camp-Availability-Integration';
 
 		// Optional access token for private repos.
-		$this->access_token = get_option( 'as_cai_github_token', '' );
-
-		if ( empty( $this->repo ) ) {
-			return; // No repo configured — updater disabled.
-		}
+		// Define AS_CAI_GITHUB_TOKEN in wp-config.php if repo is private:
+		// define( 'AS_CAI_GITHUB_TOKEN', 'ghp_yourTokenHere' );
+		$this->access_token = defined( 'AS_CAI_GITHUB_TOKEN' ) ? AS_CAI_GITHUB_TOKEN : '';
 
 		$this->init_hooks();
 	}

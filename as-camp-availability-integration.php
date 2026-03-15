@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       BG Camp Availability Integration
- * Plugin URI:        https://battleground.de
+ * Plugin URI:        https://ayon.to
  * Description:       Integriert den Availability Scheduler Timer mit dem Stachethemes Seat Planner für Camp-Buchungen. Steuert die Anzeige des Parzellen-Auswahl-Buttons basierend auf dem Availability Timer. Inkl. 5-Minuten-Warenkorb-Reservierung und modernes Admin-Dashboard.
  * Version:           1.3.59
  * Requires at least: 6.5
