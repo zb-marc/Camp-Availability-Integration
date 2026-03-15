@@ -250,33 +250,110 @@
 	};
 
 	StatusLiveUpdate.prototype.showNotifyPrompt = function (productId) {
-		// Try to get email from logged-in user context.
-		var defaultEmail = '';
+		var self = this;
 
-		var email = prompt('Ihre E-Mail-Adresse für die Benachrichtigung:', defaultEmail);
-		if (!email || !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-			return;
-		}
+		// Remove any existing modal.
+		$('.as-cai-modal-overlay').remove();
 
-		$.ajax({
-			url:  as_cai_vars.ajax_url,
-			type: 'POST',
-			data: {
-				action:     'as_cai_register_notification',
-				product_id: productId,
-				email:      email,
-				nonce:      as_cai_vars.nonce
-			},
-			success: function (response) {
-				if (response.success) {
-					alert(response.data.message);
-				} else {
-					alert('Fehler: ' + (response.data ? response.data.message : 'Unbekannter Fehler'));
-				}
-			},
-			error: function () {
-				alert('Verbindungsfehler. Bitte versuchen Sie es erneut.');
+		var modalHtml =
+			'<div class="as-cai-modal-overlay">' +
+				'<div class="as-cai-modal">' +
+					'<button type="button" class="as-cai-modal-close" aria-label="Schließen">&times;</button>' +
+					'<div class="as-cai-modal-icon">&#128276;</div>' +
+					'<h3 class="as-cai-modal-title">Auf die Warteliste setzen</h3>' +
+					'<p class="as-cai-modal-text">Sobald eine Parzelle wieder verfügbar wird, benachrichtigen wir Sie per E-Mail.</p>' +
+					'<form class="as-cai-modal-form">' +
+						'<label for="as-cai-notify-email" class="as-cai-modal-label">Ihre E-Mail-Adresse</label>' +
+						'<input type="email" id="as-cai-notify-email" class="as-cai-modal-input" placeholder="name@beispiel.de" required autocomplete="email" />' +
+						'<div class="as-cai-modal-error" style="display:none;"></div>' +
+						'<div class="as-cai-modal-actions">' +
+							'<button type="button" class="as-cai-modal-btn-cancel">Abbrechen</button>' +
+							'<button type="submit" class="as-cai-modal-btn-submit">' +
+								'<span class="btn-text">Benachrichtigen</span>' +
+								'<span class="btn-loading" style="display:none;">Wird gesendet&hellip;</span>' +
+							'</button>' +
+						'</div>' +
+					'</form>' +
+				'</div>' +
+			'</div>';
+
+		var $modal = $(modalHtml).appendTo('body');
+
+		// Animate in.
+		requestAnimationFrame(function () {
+			$modal.addClass('show');
+			$modal.find('#as-cai-notify-email').focus();
+		});
+
+		// Close handlers.
+		var closeModal = function () {
+			$modal.removeClass('show');
+			setTimeout(function () { $modal.remove(); }, 300);
+		};
+
+		$modal.find('.as-cai-modal-close, .as-cai-modal-btn-cancel').on('click', closeModal);
+		$modal.on('click', function (e) {
+			if ($(e.target).hasClass('as-cai-modal-overlay')) closeModal();
+		});
+		$(document).on('keydown.ascaimodal', function (e) {
+			if (e.key === 'Escape') { closeModal(); $(document).off('keydown.ascaimodal'); }
+		});
+
+		// Form submit.
+		$modal.find('.as-cai-modal-form').on('submit', function (e) {
+			e.preventDefault();
+			var email = $modal.find('#as-cai-notify-email').val().trim();
+			var $error = $modal.find('.as-cai-modal-error');
+			var $btnText = $modal.find('.btn-text');
+			var $btnLoading = $modal.find('.btn-loading');
+			var $submit = $modal.find('.as-cai-modal-btn-submit');
+
+			if (!email || !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+				$error.text('Bitte geben Sie eine gültige E-Mail-Adresse ein.').show();
+				$modal.find('#as-cai-notify-email').focus();
+				return;
 			}
+
+			$error.hide();
+			$btnText.hide();
+			$btnLoading.show();
+			$submit.prop('disabled', true);
+
+			$.ajax({
+				url:  as_cai_vars.ajax_url,
+				type: 'POST',
+				data: {
+					action:     'as_cai_register_notification',
+					product_id: productId,
+					email:      email,
+					nonce:      as_cai_vars.nonce
+				},
+				success: function (response) {
+					if (response.success) {
+						// Show success state.
+						$modal.find('.as-cai-modal').html(
+							'<div class="as-cai-modal-icon as-cai-modal-success-icon">&#10003;</div>' +
+							'<h3 class="as-cai-modal-title">Sie stehen auf der Warteliste!</h3>' +
+							'<p class="as-cai-modal-text">' + (response.data.message || 'Wir benachrichtigen Sie, sobald eine Parzelle frei wird.') + '</p>' +
+							'<div class="as-cai-modal-actions">' +
+								'<button type="button" class="as-cai-modal-btn-submit as-cai-modal-btn-done">Verstanden</button>' +
+							'</div>'
+						);
+						$modal.find('.as-cai-modal-btn-done').on('click', closeModal);
+					} else {
+						$error.text(response.data ? response.data.message : 'Ein Fehler ist aufgetreten.').show();
+						$btnText.show();
+						$btnLoading.hide();
+						$submit.prop('disabled', false);
+					}
+				},
+				error: function () {
+					$error.text('Verbindungsfehler. Bitte versuchen Sie es erneut.').show();
+					$btnText.show();
+					$btnLoading.hide();
+					$submit.prop('disabled', false);
+				}
+			});
 		});
 	};
 

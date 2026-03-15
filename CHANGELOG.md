@@ -7,6 +7,18 @@ und dieses Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [1.3.76] - 2026-03-15
+
+### Changed
+- **Warteliste: Modernes Modal statt Browser-prompt()**
+  - Schönes Overlay-Modal mit Backdrop-Blur
+  - E-Mail-Input mit Focus-Ring, Validierung und Fehlermeldung
+  - Loading-State beim Absenden
+  - Erfolgs-Ansicht mit Checkmark nach Anmeldung
+  - Schließen via Escape, Klick auf Overlay oder X-Button
+  - Responsive auf Mobile (Buttons stapeln sich)
+  - Im Template-Design (Gold-Buttons, passende Farben)
+
 ## [1.3.75] - 2026-03-15
 
 ### Fixed
