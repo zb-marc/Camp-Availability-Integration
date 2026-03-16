@@ -139,11 +139,6 @@ final class AS_Camp_Availability_Integration {
 		// Roles (v1.3.79)
 		require_once AS_CAI_PLUGIN_DIR . 'includes/class-as-cai-roles.php';
 
-		// Admin Reservations (v1.3.79)
-		if ( is_admin() ) {
-			require_once AS_CAI_PLUGIN_DIR . 'includes/class-as-cai-admin-reservations.php';
-		}
-
 		// GitHub Auto-Updater (v1.3.59)
 		require_once AS_CAI_PLUGIN_DIR . 'includes/class-as-cai-github-updater.php';
 	}
@@ -209,8 +204,7 @@ final class AS_Camp_Availability_Integration {
 			AS_CAI_Test_Suite::instance();
 			// Initialize Booking Dashboard (v1.3.42)
 			AS_CAI_Booking_Dashboard::instance();
-			// Admin Reservations (v1.3.79)
-			AS_CAI_Admin_Reservations::instance();
+			// Admin Reservations entfernt (v1.3.79) — Reservierung über Stachethemes Seat Planner Manager.
 		}
 
 		// Initialize Order Confirmation Shortcode (v1.3.42)

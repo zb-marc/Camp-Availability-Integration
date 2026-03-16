@@ -89,17 +89,7 @@ class AS_CAI_Admin {
 			array( $this, 'render_admin_page' )
 		);
 
-		// 3. Reservierung anlegen.
-		add_submenu_page(
-			'bg-camp-availability',
-			__( 'Reservierung anlegen', 'as-camp-availability-integration' ),
-			__( 'Reservierung anlegen', 'as-camp-availability-integration' ),
-			'manage_woocommerce',
-			'bg-camp-availability-admin-reservations',
-			array( $this, 'render_admin_page' )
-		);
-
-		// 4. Shortcode Builder.
+		// 3. Shortcode Builder.
 		add_submenu_page(
 			'bg-camp-availability',
 			__( 'Shortcode Builder', 'as-camp-availability-integration' ),
@@ -109,7 +99,7 @@ class AS_CAI_Admin {
 			array( $this, 'render_admin_page' )
 		);
 
-		// 5. Einstellungen.
+		// 4. Einstellungen.
 		add_submenu_page(
 			'bg-camp-availability',
 			__( 'Einstellungen', 'as-camp-availability-integration' ),
@@ -119,7 +109,7 @@ class AS_CAI_Admin {
 			array( $this, 'render_admin_page' )
 		);
 
-		// 6. Entwickler (Debug + Tests).
+		// 5. Entwickler (Debug + Tests).
 		add_submenu_page(
 			'bg-camp-availability',
 			__( 'Entwickler', 'as-camp-availability-integration' ),
@@ -129,7 +119,7 @@ class AS_CAI_Admin {
 			array( $this, 'render_admin_page' )
 		);
 
-		// 7. Dokumentation.
+		// 6. Dokumentation.
 		add_submenu_page(
 			'bg-camp-availability',
 			__( 'Dokumentation', 'as-camp-availability-integration' ),
@@ -280,7 +270,6 @@ class AS_CAI_Admin {
 		$tab_map = array(
 			'bg-camp-availability'                     => 'dashboard',
 			'bg-camp-availability-reservations'        => 'reservations',
-			'bg-camp-availability-admin-reservations'  => 'admin_reservations',
 			'bg-camp-availability-shortcode-builder'   => 'shortcode_builder',
 			'bg-camp-availability-settings'            => 'settings',
 			'bg-camp-availability-developer'           => 'developer',
@@ -301,9 +290,6 @@ class AS_CAI_Admin {
 						break;
 					case 'reservations':
 						$this->render_reservations();
-						break;
-					case 'admin_reservations':
-						AS_CAI_Admin_Reservations::render_page();
 						break;
 					case 'shortcode_builder':
 						$this->render_shortcode_builder();
@@ -367,11 +353,6 @@ class AS_CAI_Admin {
 			        onclick="window.location.href='<?php echo esc_url( admin_url( 'admin.php?page=bg-camp-availability-reservations' ) ); ?>'">
 				<i class="fas fa-list"></i>
 				<?php esc_html_e( 'Reservierungen', 'as-camp-availability-integration' ); ?>
-			</button>
-			<button class="as-cai-tab <?php echo esc_attr( 'admin_reservations' === $this->active_tab ? 'active' : '' ); ?>"
-			        onclick="window.location.href='<?php echo esc_url( admin_url( 'admin.php?page=bg-camp-availability-admin-reservations' ) ); ?>'">
-				<i class="fas fa-plus-circle"></i>
-				<?php esc_html_e( 'Reservierung anlegen', 'as-camp-availability-integration' ); ?>
 			</button>
 			<button class="as-cai-tab <?php echo esc_attr( 'shortcode_builder' === $this->active_tab ? 'active' : '' ); ?>"
 			        onclick="window.location.href='<?php echo esc_url( admin_url( 'admin.php?page=bg-camp-availability-shortcode-builder' ) ); ?>'">
@@ -465,11 +446,6 @@ class AS_CAI_Admin {
 			   class="as-cai-btn as-cai-btn-primary">
 				<i class="fas fa-list"></i>
 				<?php esc_html_e( 'Reservierungen anzeigen', 'as-camp-availability-integration' ); ?>
-			</a>
-			<a href="<?php echo esc_url( admin_url( 'admin.php?page=bg-camp-availability-admin-reservations' ) ); ?>"
-			   class="as-cai-btn as-cai-btn-success">
-				<i class="fas fa-plus-circle"></i>
-				<?php esc_html_e( 'Reservierung anlegen', 'as-camp-availability-integration' ); ?>
 			</a>
 			<a href="<?php echo esc_url( admin_url( 'admin.php?page=bg-camp-availability-settings' ) ); ?>"
 			   class="as-cai-btn as-cai-btn-secondary">
