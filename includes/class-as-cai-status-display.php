@@ -633,13 +633,10 @@ class AS_CAI_Status_Display {
 			border-right: 1px solid rgba(255, 255, 255, 0.06);
 		}
 
-		/* Linke Spalte */
+		/* Linke Spalte — H1 erbt Elementor-Globals automatisch */
 		.as-cai-buybox-title {
-			font-size: 24px;
-			font-weight: 700;
-			color: #F8F8F8;
+			color: var(--e-global-color-primary, #F8F8F8);
 			margin: 0 0 8px 0;
-			letter-spacing: -0.02em;
 		}
 
 		.as-cai-buybox-breadcrumbs {
@@ -731,8 +728,11 @@ class AS_CAI_Status_Display {
 
 		/* Preis innerhalb Status-Box */
 		.as-cai-status-price {
-			font-size: 28px;
-			font-weight: 700;
+			font-family: var(--e-global-typography-1e4c39c-font-family, "Allerta Stencil"), Sans-serif;
+			font-size: var(--e-global-typography-1e4c39c-font-size, 2.43em);
+			font-weight: var(--e-global-typography-1e4c39c-font-weight, 600);
+			line-height: var(--e-global-typography-1e4c39c-line-height, 1.2);
+			letter-spacing: var(--e-global-typography-1e4c39c-letter-spacing, normal);
 			color: #B19E63;
 			margin-bottom: 16px;
 			padding-bottom: 16px;
@@ -759,13 +759,13 @@ class AS_CAI_Status_Display {
 			flex: 1;
 			animation: none !important;
 		}
-		/* Critical-Pulse in BuyBox: nur den Titel pulsieren */
-		.as-cai-buybox .status-critical .status-title {
-			animation: as-cai-buybox-title-pulse 2s ease-in-out infinite;
+		/* Critical in BuyBox: Icon pulsiert dezent, Rest bleibt ruhig */
+		.as-cai-buybox .status-critical .status-icon {
+			animation: as-cai-buybox-icon-pulse 2s ease-in-out infinite;
 		}
-		@keyframes as-cai-buybox-title-pulse {
-			0%, 100% { opacity: 1; }
-			50% { opacity: 0.6; }
+		@keyframes as-cai-buybox-icon-pulse {
+			0%, 100% { opacity: 1; transform: scale(1); }
+			50% { opacity: 0.5; transform: scale(1.15); }
 		}
 
 		/* Nativer WooCommerce / Stachethemes Add-to-Cart Button */
@@ -864,10 +864,10 @@ class AS_CAI_Status_Display {
 				padding-left: 0;
 			}
 			.as-cai-buybox-title {
-				font-size: 20px;
+				font-size: 1.6em;
 			}
 			.as-cai-status-price {
-				font-size: 20px;
+				font-size: 1.6em;
 			}
 			.as-cai-buybox-cd-value {
 				font-size: 28px;
