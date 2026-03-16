@@ -113,10 +113,9 @@ class AS_CAI_Shortcodes {
 			return null;
 		}
 
-		$seconds_until  = $availability['seconds_until'];
 		$start_timestamp = $availability['start_timestamp'];
-		$start_date     = $availability['start_date'];
-		$start_time     = $availability['start_time'];
+		$start_date      = $availability['start_date'];
+		$start_time      = $availability['start_time'];
 
 		// Formatierte Startzeit für Anzeige.
 		try {
@@ -129,44 +128,72 @@ class AS_CAI_Shortcodes {
 			$time_str = $start_time;
 		}
 
-		// Admin-Einstellungen laden.
-		$size         = get_option( 'as_cai_sc_countdown_size', 'normal' );
-		$show_label   = get_option( 'as_cai_sc_countdown_show_label', 'yes' ) === 'yes';
-		$show_date    = get_option( 'as_cai_sc_countdown_show_date', 'yes' ) === 'yes';
-		$show_seconds = get_option( 'as_cai_sc_countdown_show_seconds', 'yes' ) === 'yes';
-		$is_compact   = 'compact' === $size;
+		// Admin Template-Builder Einstellungen laden.
+		$text_before  = get_option( 'as_cai_sc_cd_text_before', 'Verkaufsstart in' );
+		$text_after   = get_option( 'as_cai_sc_cd_text_after', '{date} um {time} Uhr' );
+		$show_days    = get_option( 'as_cai_sc_cd_show_days', 'yes' ) === 'yes';
+		$show_hours   = get_option( 'as_cai_sc_cd_show_hours', 'yes' ) === 'yes';
+		$show_minutes = get_option( 'as_cai_sc_cd_show_minutes', 'yes' ) === 'yes';
+		$show_seconds = get_option( 'as_cai_sc_cd_show_seconds', 'no' ) === 'yes';
+		$font_size    = absint( get_option( 'as_cai_sc_cd_font_size', '12' ) );
+
+		if ( $font_size < 9 ) {
+			$font_size = 9;
+		} elseif ( $font_size > 18 ) {
+			$font_size = 18;
+		}
+
+		// Platzhalter im After-Text ersetzen.
+		$after_text = str_replace(
+			array( '{date}', '{time}' ),
+			array( $date_str, $time_str ),
+			$text_after
+		);
 
 		// Enqueue countdown JS einmalig.
 		if ( ! self::$js_enqueued ) {
-			self::enqueue_countdown_js( $show_seconds );
+			self::enqueue_countdown_js( $show_days, $show_hours, $show_minutes, $show_seconds );
 			self::$js_enqueued = true;
 		}
 
-		$unique_id  = 'as-cai-cd-' . $product_id;
-		$css_class  = 'as-cai-sc as-cai-sc-countdown';
-		$css_class .= $is_compact ? ' as-cai-sc-cd-compact' : '';
+		$unique_id = 'as-cai-cd-' . $product_id;
+		$css_class = 'as-cai-sc as-cai-sc-countdown';
 
 		$html  = '<div class="' . esc_attr( $css_class ) . '" id="' . esc_attr( $unique_id ) . '"';
 		$html .= ' data-target-timestamp="' . esc_attr( $start_timestamp ) . '"';
 		$html .= ' data-product-id="' . esc_attr( $product_id ) . '"';
-		$html .= ' data-show-seconds="' . ( $show_seconds ? '1' : '0' ) . '">';
+		$html .= ' data-show-days="' . ( $show_days ? '1' : '0' ) . '"';
+		$html .= ' data-show-hours="' . ( $show_hours ? '1' : '0' ) . '"';
+		$html .= ' data-show-minutes="' . ( $show_minutes ? '1' : '0' ) . '"';
+		$html .= ' data-show-seconds="' . ( $show_seconds ? '1' : '0' ) . '"';
+		$html .= ' style="font-size:' . esc_attr( $font_size ) . 'px;">';
 
-		if ( ! $is_compact && $show_label ) {
-			$html .= '<span class="as-cai-sc-cd-icon">⏳</span>';
-			$html .= '<span class="as-cai-sc-cd-label">Verkaufsstart in</span>';
+		// Text davor.
+		if ( '' !== $text_before ) {
+			$html .= '<span class="as-cai-sc-cd-label">' . esc_html( $text_before ) . '</span> ';
 		}
 
+		// Timer-Einheiten.
 		$html .= '<span class="as-cai-sc-cd-timer">';
-		$html .= '<span class="cd-d" data-unit="d">--</span>T ';
-		$html .= '<span class="cd-h" data-unit="h">--</span>S ';
-		$html .= '<span class="cd-m" data-unit="m">--</span>M';
-		if ( $show_seconds ) {
-			$html .= ' <span class="cd-s" data-unit="s">--</span>S';
+		$units = array();
+		if ( $show_days ) {
+			$units[] = '<span class="cd-d" data-unit="d">--</span>T';
 		}
+		if ( $show_hours ) {
+			$units[] = '<span class="cd-h" data-unit="h">--</span>S';
+		}
+		if ( $show_minutes ) {
+			$units[] = '<span class="cd-m" data-unit="m">--</span>M';
+		}
+		if ( $show_seconds ) {
+			$units[] = '<span class="cd-s" data-unit="s">--</span>S';
+		}
+		$html .= implode( ' ', $units );
 		$html .= '</span>';
 
-		if ( ! $is_compact && $show_date ) {
-			$html .= '<span class="as-cai-sc-cd-date">' . esc_html( $date_str ) . ' um ' . esc_html( $time_str ) . ' Uhr</span>';
+		// Text danach.
+		if ( '' !== $after_text ) {
+			$html .= ' <span class="as-cai-sc-cd-date">' . esc_html( $after_text ) . '</span>';
 		}
 
 		$html .= '</div>';
@@ -269,15 +296,14 @@ class AS_CAI_Shortcodes {
 		}
 		.as-cai-sc-bar-label { font-size: 12px; color: #6b7280; }
 
-		/* Countdown Badge */
+		/* Countdown Badge — font-size wird per inline style gesetzt */
 		.as-cai-sc-countdown {
-			display: inline-flex; align-items: center; gap: 6px;
-			padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: 600;
+			display: inline-flex; align-items: center; gap: 0.4em; flex-wrap: wrap;
+			padding: 0.35em 0.8em; border-radius: 20px; font-weight: 600;
 			line-height: 1.4; white-space: nowrap;
 			background: linear-gradient(135deg, #1e293b, #334155); color: #f8fafc;
 		}
-		.as-cai-sc-cd-icon { font-size: 14px; }
-		.as-cai-sc-cd-label { color: #94a3b8; font-weight: 500; font-size: 12px; }
+		.as-cai-sc-cd-label { color: #94a3b8; font-weight: 500; }
 		.as-cai-sc-cd-timer {
 			font-variant-numeric: tabular-nums;
 			letter-spacing: 0.5px;
@@ -285,13 +311,7 @@ class AS_CAI_Shortcodes {
 			font-weight: 700;
 		}
 		.as-cai-sc-cd-timer [data-unit] { min-width: 1.2em; display: inline-block; text-align: center; }
-		.as-cai-sc-cd-date { color: #64748b; font-size: 11px; font-weight: 400; }
-
-		/* Kompakt-Modus: kleiner, nur Timer */
-		.as-cai-sc-cd-compact {
-			padding: 3px 8px; font-size: 11px; gap: 4px;
-		}
-		.as-cai-sc-cd-compact .as-cai-sc-cd-timer { font-size: 11px; }
+		.as-cai-sc-cd-date { color: #64748b; font-weight: 400; font-size: 0.9em; }
 
 		/* Wenn Countdown abgelaufen — sanfter Übergang */
 		.as-cai-sc-countdown.expired { display: none; }
@@ -310,8 +330,9 @@ class AS_CAI_Shortcodes {
 	 * - Updates the timer every second
 	 * - On expiry: reloads the page so the availability badge appears
 	 */
-	private static function enqueue_countdown_js( $show_seconds = true ) {
-		$interval = $show_seconds ? 1000 : 60000;
+	private static function enqueue_countdown_js( $show_days = true, $show_hours = true, $show_minutes = true, $show_seconds = false ) {
+		// Tick every second if seconds are shown, otherwise every 10 seconds.
+		$interval = $show_seconds ? 1000 : 10000;
 		$js = <<<JS
 (function(){
 	function initShortcodeCountdowns() {
@@ -337,10 +358,24 @@ class AS_CAI_Shortcodes {
 				}
 
 				anyActive = true;
+
+				var hasDays = el.getAttribute('data-show-days') === '1';
+				var hasHours = el.getAttribute('data-show-hours') === '1';
+				var hasMin = el.getAttribute('data-show-minutes') === '1';
+				var hasSec = el.getAttribute('data-show-seconds') === '1';
+
 				var d = Math.floor(diff / 86400);
-				var h = Math.floor((diff % 86400) / 3600);
-				var m = Math.floor((diff % 3600) / 60);
-				var s = diff % 60;
+				var remainder = diff % 86400;
+				var h = Math.floor(remainder / 3600);
+				var m = Math.floor((remainder % 3600) / 60);
+				var s = remainder % 60;
+
+				// If days hidden, roll into hours.
+				if (!hasDays) { h += d * 24; d = 0; }
+				// If hours hidden, roll into minutes.
+				if (!hasHours) { m += h * 60; h = 0; }
+				// If minutes hidden, roll into seconds.
+				if (!hasMin) { s += m * 60; m = 0; }
 
 				var dEl = el.querySelector('.cd-d');
 				var hEl = el.querySelector('.cd-h');

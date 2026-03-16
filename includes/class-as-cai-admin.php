@@ -239,10 +239,13 @@ class AS_CAI_Admin {
 		register_setting( 'as_cai_general_settings', 'as_cai_countdown_style' );
 
 		// Shortcode Countdown Settings (v1.3.78).
-		register_setting( 'as_cai_general_settings', 'as_cai_sc_countdown_size' );
-		register_setting( 'as_cai_general_settings', 'as_cai_sc_countdown_show_label' );
-		register_setting( 'as_cai_general_settings', 'as_cai_sc_countdown_show_date' );
-		register_setting( 'as_cai_general_settings', 'as_cai_sc_countdown_show_seconds' );
+		register_setting( 'as_cai_general_settings', 'as_cai_sc_cd_text_before' );
+		register_setting( 'as_cai_general_settings', 'as_cai_sc_cd_text_after' );
+		register_setting( 'as_cai_general_settings', 'as_cai_sc_cd_show_days' );
+		register_setting( 'as_cai_general_settings', 'as_cai_sc_cd_show_hours' );
+		register_setting( 'as_cai_general_settings', 'as_cai_sc_cd_show_minutes' );
+		register_setting( 'as_cai_general_settings', 'as_cai_sc_cd_show_seconds' );
+		register_setting( 'as_cai_general_settings', 'as_cai_sc_cd_font_size' );
 
 		// Cart Reservation Settings.
 		register_setting( 'as_cai_cart_settings', 'as_cai_enable_cart_reservation' );
@@ -525,28 +528,31 @@ class AS_CAI_Admin {
 					</nav>
 				</div>
 
-				<!-- Settings Form (for tabs with saveable options) -->
-				<form method="post" action="options.php" x-show="activeTab !== 'debug_tools' && activeTab !== 'updates'">
-					<!-- Countdown Settings Tab -->
-					<div x-show="activeTab === 'countdown'" style="padding: 24px;">
+				<!-- Countdown Settings Tab -->
+				<form method="post" action="options.php" x-show="activeTab === 'countdown'">
+					<div style="padding: 24px;">
 						<?php settings_fields( 'as_cai_general_settings' ); ?>
 						<?php $this->render_general_settings(); ?>
 						<div style="margin-top: 24px; padding-top: 24px; border-top: 2px solid var(--as-gray-200); display: flex; justify-content: flex-end;">
 							<?php submit_button( __( 'Einstellungen speichern', 'as-camp-availability-integration' ), 'primary as-cai-btn as-cai-btn-primary', 'submit', false ); ?>
 						</div>
 					</div>
+				</form>
 
-					<!-- Cart Reservation Settings Tab -->
-					<div x-show="activeTab === 'cart'" x-cloak style="padding: 24px;">
+				<!-- Cart Reservation Settings Tab -->
+				<form method="post" action="options.php" x-show="activeTab === 'cart'" x-cloak>
+					<div style="padding: 24px;">
 						<?php settings_fields( 'as_cai_cart_settings' ); ?>
 						<?php $this->render_cart_settings(); ?>
 						<div style="margin-top: 24px; padding-top: 24px; border-top: 2px solid var(--as-gray-200); display: flex; justify-content: flex-end;">
 							<?php submit_button( __( 'Einstellungen speichern', 'as-camp-availability-integration' ), 'primary as-cai-btn as-cai-btn-primary', 'submit', false ); ?>
 						</div>
 					</div>
+				</form>
 
-					<!-- Debug Settings Tab (combined basic + advanced) -->
-					<div x-show="activeTab === 'debug'" x-cloak style="padding: 24px;">
+				<!-- Debug Settings Tab (combined basic + advanced) -->
+				<form method="post" action="options.php" x-show="activeTab === 'debug'" x-cloak>
+					<div style="padding: 24px;">
 						<?php settings_fields( 'as_cai_debug_settings' ); ?>
 						<?php $this->render_debug_settings(); ?>
 						<div style="margin-top: 32px;">
@@ -643,130 +649,179 @@ class AS_CAI_Admin {
 			</div>
 		</div>
 
-		<!-- Shortcode Countdown Settings -->
+		<!-- Shortcode Countdown Template Builder -->
 		<?php
-		$sc_size         = get_option( 'as_cai_sc_countdown_size', 'normal' );
-		$sc_show_label   = get_option( 'as_cai_sc_countdown_show_label', 'yes' );
-		$sc_show_date    = get_option( 'as_cai_sc_countdown_show_date', 'yes' );
-		$sc_show_seconds = get_option( 'as_cai_sc_countdown_show_seconds', 'yes' );
+		$cd_text_before  = get_option( 'as_cai_sc_cd_text_before', 'Verkaufsstart in' );
+		$cd_text_after   = get_option( 'as_cai_sc_cd_text_after', '{date} um {time} Uhr' );
+		$cd_show_days    = get_option( 'as_cai_sc_cd_show_days', 'yes' );
+		$cd_show_hours   = get_option( 'as_cai_sc_cd_show_hours', 'yes' );
+		$cd_show_minutes = get_option( 'as_cai_sc_cd_show_minutes', 'yes' );
+		$cd_show_seconds = get_option( 'as_cai_sc_cd_show_seconds', 'no' );
+		$cd_font_size    = get_option( 'as_cai_sc_cd_font_size', '12' );
 		?>
 		<div class="as-cai-settings-section" style="margin-top: 32px;">
-			<h3 style="font-size: 1.125rem; font-weight: 600; color: var(--as-gray-900); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+			<h3 style="font-size: 1.125rem; font-weight: 600; color: var(--as-gray-900); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
 				<i class="fas fa-code" style="color: var(--as-primary);"></i>
 				<?php esc_html_e( 'Shortcode Countdown [as_cai_availability]', 'as-camp-availability-integration' ); ?>
 			</h3>
-			<p style="color: var(--as-gray-500); margin-bottom: 16px; font-size: 13px;">
-				<?php esc_html_e( 'Darstellung des Countdowns im Shop-Loop und Elementor, wenn der Verkauf noch nicht gestartet hat.', 'as-camp-availability-integration' ); ?>
+			<p style="color: var(--as-gray-500); margin-bottom: 20px; font-size: 13px;">
+				<?php esc_html_e( 'Konfiguriere die Countdown-Anzeige im Shop-Loop, wenn der Verkauf noch nicht gestartet hat.', 'as-camp-availability-integration' ); ?>
 			</p>
 
-			<!-- Größe -->
-			<div class="as-cai-settings-row">
-				<div class="as-cai-settings-label">
-					<label for="as_cai_sc_countdown_size"><strong><?php esc_html_e( 'Größe', 'as-camp-availability-integration' ); ?></strong></label>
-					<p><?php esc_html_e( 'Darstellungsgröße des Countdowns', 'as-camp-availability-integration' ); ?></p>
-				</div>
-				<select name="as_cai_sc_countdown_size" id="as_cai_sc_countdown_size" class="as-cai-select">
-					<option value="compact" <?php selected( $sc_size, 'compact' ); ?>>
-						<?php esc_html_e( 'Kompakt — nur Timer, eine Zeile', 'as-camp-availability-integration' ); ?>
-					</option>
-					<option value="normal" <?php selected( $sc_size, 'normal' ); ?>>
-						<?php esc_html_e( 'Normal — mit Label und Datum', 'as-camp-availability-integration' ); ?>
-					</option>
-				</select>
-			</div>
-
-			<!-- Label "Verkaufsstart in" -->
-			<div class="as-cai-settings-row">
-				<label class="as-cai-switch">
-					<input type="checkbox" name="as_cai_sc_countdown_show_label" value="yes" <?php checked( $sc_show_label, 'yes' ); ?>>
-					<span class="as-cai-slider"></span>
-				</label>
-				<div class="as-cai-settings-label">
-					<strong><?php esc_html_e( '"Verkaufsstart in" anzeigen', 'as-camp-availability-integration' ); ?></strong>
-					<p><?php esc_html_e( 'Zeigt den Text "Verkaufsstart in" vor dem Timer', 'as-camp-availability-integration' ); ?></p>
+			<!-- Template-Aufbau: Visuell -->
+			<div style="background: var(--as-gray-50); border: 1px solid var(--as-gray-200); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+				<p style="font-weight: 600; font-size: 13px; color: var(--as-gray-700); margin-bottom: 12px;">
+					<i class="fas fa-puzzle-piece"></i> <?php esc_html_e( 'Template-Aufbau', 'as-camp-availability-integration' ); ?>
+				</p>
+				<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+					<span style="background: #dbeafe; color: #1e40af; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;">Text davor</span>
+					<span style="color: var(--as-gray-400);">→</span>
+					<span style="background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;">T</span>
+					<span style="background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;">S</span>
+					<span style="background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;">M</span>
+					<span style="background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;">S</span>
+					<span style="color: var(--as-gray-400);">→</span>
+					<span style="background: #dbeafe; color: #1e40af; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;">Text danach</span>
 				</div>
 			</div>
 
-			<!-- Datum anzeigen -->
+			<!-- Text davor -->
 			<div class="as-cai-settings-row">
-				<label class="as-cai-switch">
-					<input type="checkbox" name="as_cai_sc_countdown_show_date" value="yes" <?php checked( $sc_show_date, 'yes' ); ?>>
-					<span class="as-cai-slider"></span>
-				</label>
 				<div class="as-cai-settings-label">
-					<strong><?php esc_html_e( 'Startdatum anzeigen', 'as-camp-availability-integration' ); ?></strong>
-					<p><?php esc_html_e( 'Zeigt das Datum und die Uhrzeit des Verkaufsstarts', 'as-camp-availability-integration' ); ?></p>
+					<label for="as_cai_sc_cd_text_before"><strong><?php esc_html_e( 'Text davor', 'as-camp-availability-integration' ); ?></strong></label>
+					<p><?php esc_html_e( 'Text der vor dem Timer angezeigt wird. Leer lassen = kein Text.', 'as-camp-availability-integration' ); ?></p>
+				</div>
+				<input type="text" name="as_cai_sc_cd_text_before" id="as_cai_sc_cd_text_before" class="as-cai-input"
+					   value="<?php echo esc_attr( $cd_text_before ); ?>" placeholder="z.B. Verkaufsstart in"
+					   style="width: 100%; max-width: 300px;">
+			</div>
+
+			<!-- Timer-Einheiten -->
+			<div class="as-cai-settings-row" style="align-items: flex-start;">
+				<div class="as-cai-settings-label">
+					<strong><?php esc_html_e( 'Timer-Einheiten', 'as-camp-availability-integration' ); ?></strong>
+					<p><?php esc_html_e( 'Welche Zeiteinheiten im Countdown angezeigt werden', 'as-camp-availability-integration' ); ?></p>
+				</div>
+				<div style="display: flex; gap: 16px; flex-wrap: wrap;">
+					<label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px;">
+						<input type="checkbox" name="as_cai_sc_cd_show_days" value="yes" <?php checked( $cd_show_days, 'yes' ); ?> style="accent-color: var(--as-primary);">
+						<span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">T</span> Tage
+					</label>
+					<label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px;">
+						<input type="checkbox" name="as_cai_sc_cd_show_hours" value="yes" <?php checked( $cd_show_hours, 'yes' ); ?> style="accent-color: var(--as-primary);">
+						<span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">S</span> Stunden
+					</label>
+					<label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px;">
+						<input type="checkbox" name="as_cai_sc_cd_show_minutes" value="yes" <?php checked( $cd_show_minutes, 'yes' ); ?> style="accent-color: var(--as-primary);">
+						<span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">M</span> Minuten
+					</label>
+					<label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px;">
+						<input type="checkbox" name="as_cai_sc_cd_show_seconds" value="yes" <?php checked( $cd_show_seconds, 'yes' ); ?> style="accent-color: var(--as-primary);">
+						<span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">S</span> Sekunden
+					</label>
 				</div>
 			</div>
 
-			<!-- Sekunden anzeigen -->
+			<!-- Text danach -->
 			<div class="as-cai-settings-row">
-				<label class="as-cai-switch">
-					<input type="checkbox" name="as_cai_sc_countdown_show_seconds" value="yes" <?php checked( $sc_show_seconds, 'yes' ); ?>>
-					<span class="as-cai-slider"></span>
-				</label>
 				<div class="as-cai-settings-label">
-					<strong><?php esc_html_e( 'Sekunden anzeigen', 'as-camp-availability-integration' ); ?></strong>
-					<p><?php esc_html_e( 'Zeigt die Sekunden im Countdown an', 'as-camp-availability-integration' ); ?></p>
+					<label for="as_cai_sc_cd_text_after"><strong><?php esc_html_e( 'Text danach', 'as-camp-availability-integration' ); ?></strong></label>
+					<p><?php esc_html_e( 'Text nach dem Timer. Platzhalter: {date}, {time}', 'as-camp-availability-integration' ); ?></p>
+				</div>
+				<input type="text" name="as_cai_sc_cd_text_after" id="as_cai_sc_cd_text_after" class="as-cai-input"
+					   value="<?php echo esc_attr( $cd_text_after ); ?>" placeholder="z.B. {date} um {time} Uhr"
+					   style="width: 100%; max-width: 300px;">
+			</div>
+
+			<!-- Font-Size -->
+			<div class="as-cai-settings-row">
+				<div class="as-cai-settings-label">
+					<label for="as_cai_sc_cd_font_size"><strong><?php esc_html_e( 'Schriftgröße (px)', 'as-camp-availability-integration' ); ?></strong></label>
+					<p><?php esc_html_e( 'Gesamtgröße der Countdown-Anzeige', 'as-camp-availability-integration' ); ?></p>
+				</div>
+				<div style="display: flex; align-items: center; gap: 8px;">
+					<input type="range" name="as_cai_sc_cd_font_size" id="as_cai_sc_cd_font_size"
+						   min="9" max="18" step="1" value="<?php echo esc_attr( $cd_font_size ); ?>"
+						   style="width: 160px; accent-color: var(--as-primary);">
+					<span id="font-size-value" style="font-weight: 600; font-size: 13px; color: var(--as-gray-700); min-width: 36px;"><?php echo esc_html( $cd_font_size ); ?>px</span>
 				</div>
 			</div>
 
 			<!-- Live-Vorschau -->
-			<div style="margin-top: 16px; padding: 16px; background: #1e293b; border-radius: 8px;">
-				<p style="color: #94a3b8; font-size: 11px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;"><?php esc_html_e( 'Vorschau', 'as-camp-availability-integration' ); ?></p>
-				<div id="sc-countdown-preview" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; line-height: 1.4; white-space: nowrap; background: linear-gradient(135deg, #1e293b, #334155); color: #f8fafc; border: 1px solid #475569;">
-					<span class="prev-icon" style="font-size: 14px;">⏳</span>
-					<span class="prev-label" style="color: #94a3b8; font-weight: 500; font-size: 12px;">Verkaufsstart in</span>
-					<span style="font-variant-numeric: tabular-nums; letter-spacing: 0.5px; color: #B19E63; font-weight: 700;">
-						16T 09S 36M
-						<span class="prev-seconds">50S</span>
-					</span>
-					<span class="prev-date" style="color: #64748b; font-size: 11px; font-weight: 400;">01.04.2026 um 20:00 Uhr</span>
+			<div style="margin-top: 20px; border-radius: 8px; overflow: hidden;">
+				<div style="background: #0f172a; padding: 8px 16px;">
+					<p style="color: #94a3b8; font-size: 10px; margin: 0; text-transform: uppercase; letter-spacing: 1px;">
+						<i class="fas fa-eye"></i> <?php esc_html_e( 'Live-Vorschau (dunkler Hintergrund)', 'as-camp-availability-integration' ); ?>
+					</p>
+				</div>
+				<div style="background: #1e293b; padding: 20px 16px; display: flex; justify-content: center;">
+					<div id="sc-cd-preview" style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-weight: 600; line-height: 1.4; white-space: nowrap; background: linear-gradient(135deg, #1e293b, #334155); color: #f8fafc; border: 1px solid #475569;">
+					</div>
+				</div>
+				<div style="background: #f8fafc; padding: 20px 16px; display: flex; justify-content: center; border-top: 1px solid var(--as-gray-200);">
+					<div id="sc-cd-preview-light" style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-weight: 600; line-height: 1.4; white-space: nowrap; background: linear-gradient(135deg, #1e293b, #334155); color: #f8fafc;">
+					</div>
 				</div>
 			</div>
 		</div>
 
 		<script>
 		(function() {
-			var sizeEl = document.getElementById('as_cai_sc_countdown_size');
-			var labelCb = document.querySelector('[name="as_cai_sc_countdown_show_label"]');
-			var dateCb = document.querySelector('[name="as_cai_sc_countdown_show_date"]');
-			var secCb = document.querySelector('[name="as_cai_sc_countdown_show_seconds"]');
-			var preview = document.getElementById('sc-countdown-preview');
+			var textBefore = document.getElementById('as_cai_sc_cd_text_before');
+			var textAfter  = document.getElementById('as_cai_sc_cd_text_after');
+			var showDays   = document.querySelector('[name="as_cai_sc_cd_show_days"]');
+			var showHours  = document.querySelector('[name="as_cai_sc_cd_show_hours"]');
+			var showMin    = document.querySelector('[name="as_cai_sc_cd_show_minutes"]');
+			var showSec    = document.querySelector('[name="as_cai_sc_cd_show_seconds"]');
+			var fontSize   = document.getElementById('as_cai_sc_cd_font_size');
+			var fsValue    = document.getElementById('font-size-value');
+			var preview    = document.getElementById('sc-cd-preview');
+			var previewL   = document.getElementById('sc-cd-preview-light');
 			if (!preview) return;
 
-			function updatePreview() {
-				var isCompact = sizeEl && sizeEl.value === 'compact';
-				var showLabel = labelCb && labelCb.checked;
-				var showDate = dateCb && dateCb.checked;
-				var showSec = secCb && secCb.checked;
+			function buildPreview() {
+				var fs = fontSize ? fontSize.value : 12;
+				if (fsValue) fsValue.textContent = fs + 'px';
 
-				var iconEl = preview.querySelector('.prev-icon');
-				var labelEl = preview.querySelector('.prev-label');
-				var dateEl = preview.querySelector('.prev-date');
-				var secEl = preview.querySelector('.prev-seconds');
+				var html = '';
+				var before = textBefore ? textBefore.value : '';
+				var after  = textAfter ? textAfter.value : '';
 
-				if (isCompact) {
-					if (iconEl) iconEl.style.display = 'none';
-					if (labelEl) labelEl.style.display = 'none';
-					if (dateEl) dateEl.style.display = 'none';
-					preview.style.padding = '3px 8px';
-					preview.style.fontSize = '12px';
-				} else {
-					if (iconEl) iconEl.style.display = showLabel ? '' : 'none';
-					if (labelEl) labelEl.style.display = showLabel ? '' : 'none';
-					if (dateEl) dateEl.style.display = showDate ? '' : 'none';
-					preview.style.padding = '5px 12px';
-					preview.style.fontSize = '13px';
+				if (before) {
+					html += '<span style="color:#94a3b8;font-weight:500;font-size:' + (fs * 0.85) + 'px;">' + escH(before) + '</span> ';
 				}
-				if (secEl) secEl.style.display = showSec ? '' : 'none';
+
+				html += '<span style="font-variant-numeric:tabular-nums;letter-spacing:0.5px;color:#B19E63;font-weight:700;">';
+				var parts = [];
+				if (showDays && showDays.checked)  parts.push('<span>16</span>T');
+				if (showHours && showHours.checked) parts.push('<span>09</span>S');
+				if (showMin && showMin.checked)     parts.push('<span>36</span>M');
+				if (showSec && showSec.checked)     parts.push('<span>50</span>S');
+				html += parts.join(' ');
+				html += '</span>';
+
+				if (after) {
+					var rendered = after.replace('{date}', '01.04.2026').replace('{time}', '20:00');
+					html += ' <span style="color:#64748b;font-size:' + (fs * 0.8) + 'px;font-weight:400;">' + escH(rendered) + '</span>';
+				}
+
+				preview.style.fontSize = fs + 'px';
+				preview.innerHTML = html;
+				previewL.style.fontSize = fs + 'px';
+				previewL.innerHTML = html;
 			}
 
-			if (sizeEl) sizeEl.addEventListener('change', updatePreview);
-			if (labelCb) labelCb.addEventListener('change', updatePreview);
-			if (dateCb) dateCb.addEventListener('change', updatePreview);
-			if (secCb) secCb.addEventListener('change', updatePreview);
-			updatePreview();
+			function escH(s) {
+				var d = document.createElement('div');
+				d.textContent = s;
+				return d.innerHTML;
+			}
+
+			[textBefore, textAfter, showDays, showHours, showMin, showSec, fontSize].forEach(function(el) {
+				if (el) el.addEventListener('input', buildPreview);
+				if (el) el.addEventListener('change', buildPreview);
+			});
+			buildPreview();
 		})();
 		</script>
 		<?php
