@@ -540,16 +540,16 @@ class AS_CAI_Admin {
 									$status_badge_colors = array(
 										'available'     => 'background: rgba(16,185,129,0.1); color: #059669;',
 										'limited'       => 'background: rgba(245,158,11,0.1); color: #d97706;',
-										'critical'      => 'background: rgba(239,68,68,0.1); color: #dc2626;',
+										'critical'      => 'background: rgba(16,185,129,0.15); color: #047857;',
 										'reserved_full' => 'background: rgba(107,114,128,0.1); color: #4b5563;',
-										'sold_out'      => 'background: rgba(239,68,68,0.15); color: #b91c1c;',
+										'sold_out'      => 'background: rgba(16,185,129,0.2); color: #065f46;',
 									);
 									$badge_style = isset( $status_badge_colors[ $status_text ] ) ? $status_badge_colors[ $status_text ] : 'background: rgba(107,114,128,0.1); color: #4b5563;';
 									$status_labels = array(
 										'available'     => 'Verfügbar',
-										'limited'       => 'Begrenzt',
-										'critical'      => 'Kritisch',
-										'reserved_full' => 'Reserviert',
+										'limited'       => 'Gut gebucht',
+										'critical'      => 'Fast ausgebucht',
+										'reserved_full' => 'Voll reserviert',
 										'sold_out'      => 'Ausgebucht',
 									);
 									$status_label = isset( $status_labels[ $status_text ] ) ? $status_labels[ $status_text ] : $status_text;
