@@ -1566,7 +1566,7 @@ class AS_CAI_Admin {
 				</div>
 
 				<!-- README Tab -->
-				<div x-show="activeDoc === 'readme'" style="padding: 24px; max-height: 800px; overflow-y: auto;">
+				<div x-show="activeDoc === 'readme'" class="as-cai-doc-content">
 					<div class="as-cai-prose">
 						<?php echo wp_kses_post( $readme_content ); ?>
 					</div>
@@ -1574,7 +1574,7 @@ class AS_CAI_Admin {
 
 				<!-- Latest Update Tab -->
 				<?php if ( $update_content ) : ?>
-				<div x-show="activeDoc === 'latest'" x-cloak style="padding: 24px; max-height: 800px; overflow-y: auto;">
+				<div x-show="activeDoc === 'latest'" x-cloak class="as-cai-doc-content">
 					<div class="as-cai-badge as-cai-badge-success" style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px;">
 						<i class="fas fa-check-circle"></i>
 						<?php 
@@ -1589,15 +1589,15 @@ class AS_CAI_Admin {
 				<?php endif; ?>
 
 				<!-- Changelog Tab -->
-				<div x-show="activeDoc === 'changelog'" x-cloak style="padding: 24px; max-height: 800px; overflow-y: auto;">
+				<div x-show="activeDoc === 'changelog'" x-cloak class="as-cai-doc-content">
 					<div class="as-cai-prose">
 						<?php echo wp_kses_post( $changelog_content ); ?>
 					</div>
 				</div>
 
 				<!-- Support Tab -->
-				<div x-show="activeDoc === 'support'" x-cloak style="padding: 24px;">
-					<div class="as-cai-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white;">
+				<div x-show="activeDoc === 'support'" x-cloak class="as-cai-doc-content">
+					<div class="as-cai-card" style="background: linear-gradient(135deg, var(--as-primary) 0%, #0470d1 100%); border: none; color: white;">
 						<div class="as-cai-card-body">
 							<div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
 								<i class="fas fa-headset" style="font-size: 3rem; opacity: 0.9;"></i>
