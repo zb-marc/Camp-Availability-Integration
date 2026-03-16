@@ -215,33 +215,37 @@ class AS_CAI_Shortcodes {
 		$total     = $data['total'];
 		$pct       = $data['percent_free'];
 
+		// Einheitliche Farbpalette — Dark Theme mit Gold-Akzent.
 		$status_colors = array(
-			'available'     => '#22c55e',
-			'limited'       => '#f59e0b',
-			'critical'      => '#ef4444',
-			'reserved_full' => '#8b5cf6',
-			'sold_out'      => '#dc2626',
+			'available'     => '#B19E63',
+			'limited'       => '#B19E63',
+			'critical'      => '#c4433e',
+			'reserved_full' => '#54595F',
+			'sold_out'      => '#c4433e',
 		);
-		$color = isset( $status_colors[ $status ] ) ? $status_colors[ $status ] : '#666';
+		$color = isset( $status_colors[ $status ] ) ? $status_colors[ $status ] : '#54595F';
 
 		$status_icons = array(
-			'available'     => '🟢',
-			'limited'       => '🟡',
-			'critical'      => '🔴',
-			'reserved_full' => '🔒',
-			'sold_out'      => '🔴',
+			'available'     => '●',
+			'limited'       => '●',
+			'critical'      => '●',
+			'reserved_full' => '●',
+			'sold_out'      => '●',
 		);
-		$icon = isset( $status_icons[ $status ] ) ? $status_icons[ $status ] : '⚪';
+		$icon = isset( $status_icons[ $status ] ) ? $status_icons[ $status ] : '●';
+
+		// Status-Dot HTML.
+		$dot = '<span class="as-cai-sc-dot" style="background:' . esc_attr( $color ) . ';"></span>';
 
 		switch ( $display ) {
 			case 'count':
-				return '<span class="as-cai-sc as-cai-sc-count" style="color:' . esc_attr( $color ) . ';">' . esc_html( $available ) . '</span>';
+				return '<span class="as-cai-sc as-cai-sc-count">' . esc_html( $available ) . '</span>';
 
 			case 'text':
 				if ( 'sold_out' === $status ) {
-					return '<span class="as-cai-sc as-cai-sc-text" style="color:' . esc_attr( $color ) . ';">Ausgebucht</span>';
+					return '<span class="as-cai-sc as-cai-sc-text as-cai-sc-status-' . esc_attr( $status ) . '">' . $dot . ' Ausgebucht</span>';
 				}
-				return '<span class="as-cai-sc as-cai-sc-text">' . esc_html( $available ) . ' von ' . esc_html( $total ) . ' ' . esc_html( $label ) . ' verfügbar</span>';
+				return '<span class="as-cai-sc as-cai-sc-text">' . $dot . ' ' . esc_html( $available ) . ' von ' . esc_html( $total ) . ' ' . esc_html( $label ) . ' verfügbar</span>';
 
 			case 'bar':
 				$html  = '<div class="as-cai-sc as-cai-sc-bar">';
@@ -249,7 +253,7 @@ class AS_CAI_Shortcodes {
 				$html .= '<div class="as-cai-sc-bar-fill" style="width:' . esc_attr( $pct ) . '%;background:' . esc_attr( $color ) . ';"></div>';
 				$html .= '</div>';
 				if ( 'sold_out' === $status ) {
-					$html .= '<span class="as-cai-sc-bar-label" style="color:' . esc_attr( $color ) . ';">Ausgebucht</span>';
+					$html .= '<span class="as-cai-sc-bar-label">Ausgebucht</span>';
 				} else {
 					$html .= '<span class="as-cai-sc-bar-label">' . esc_html( round( $pct ) ) . '% verfügbar (' . esc_html( $available ) . '/' . esc_html( $total ) . ')</span>';
 				}
@@ -260,9 +264,9 @@ class AS_CAI_Shortcodes {
 			default:
 				$html = '<span class="as-cai-sc as-cai-sc-badge as-cai-sc-status-' . esc_attr( $status ) . '">';
 				if ( 'sold_out' === $status ) {
-					$html .= $icon . ' Ausgebucht';
+					$html .= $dot . ' Ausgebucht';
 				} else {
-					$html .= $icon . ' ' . esc_html( $available ) . ' von ' . esc_html( $total ) . ' ' . esc_html( $label );
+					$html .= $dot . ' ' . esc_html( $available ) . ' von ' . esc_html( $total ) . ' ' . esc_html( $label );
 				}
 				$html .= '</span>';
 				return $html;
@@ -274,36 +278,78 @@ class AS_CAI_Shortcodes {
 	 */
 	private static function enqueue_shortcode_css() {
 		$css = '
-		.as-cai-sc { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+		/* ── Einheitliche Designsprache: Dark Theme + Gold (#B19E63) ── */
+		.as-cai-sc {
+			font-family: inherit;
+			-webkit-font-smoothing: antialiased;
+		}
+
+		/* Status-Dot — pulsierender Kreis */
+		.as-cai-sc-dot {
+			display: inline-block;
+			width: 8px; height: 8px;
+			border-radius: 50%;
+			flex-shrink: 0;
+			animation: as-cai-sc-pulse 1.5s ease-in-out infinite;
+		}
+		@keyframes as-cai-sc-pulse {
+			0%, 100% { opacity: 1; transform: scale(1); }
+			50% { opacity: 0.6; transform: scale(1.15); }
+		}
+
+		/* ── Badge (Standard) ── */
 		.as-cai-sc-badge {
 			display: inline-flex; align-items: center; gap: 6px;
-			padding: 4px 10px; border-radius: 20px; font-size: 13px; font-weight: 600;
+			padding: 5px 12px; border-radius: 8px; font-size: 13px; font-weight: 600;
 			line-height: 1.4; white-space: nowrap;
+			background: #25282B; color: #F8F8F8;
+			border: 1px solid rgba(177, 158, 99, 0.2);
 		}
-		.as-cai-sc-status-available { background: #f0fdf4; color: #166534; }
-		.as-cai-sc-status-limited { background: #fffbeb; color: #92400e; }
-		.as-cai-sc-status-critical { background: #fef2f2; color: #991b1b; }
-		.as-cai-sc-status-reserved_full { background: #faf5ff; color: #6b21a8; }
-		.as-cai-sc-status-sold_out { background: #fef2f2; color: #991b1b; }
-		.as-cai-sc-text { font-size: 14px; font-weight: 500; }
-		.as-cai-sc-count { font-size: 18px; font-weight: 700; }
-		.as-cai-sc-bar { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+		.as-cai-sc-status-available { border-left: 3px solid #B19E63; }
+		.as-cai-sc-status-limited { border-left: 3px solid #B19E63; }
+		.as-cai-sc-status-critical { border-left: 3px solid #c4433e; }
+		.as-cai-sc-status-reserved_full { border-left: 3px solid #54595F; }
+		.as-cai-sc-status-sold_out { border-left: 3px solid #c4433e; }
+
+		/* ── Text-Modus ── */
+		.as-cai-sc-text {
+			display: inline-flex; align-items: center; gap: 6px;
+			font-size: 13px; font-weight: 600; color: #F8F8F8;
+			background: #25282B; padding: 5px 12px; border-radius: 8px;
+			border: 1px solid rgba(177, 158, 99, 0.2);
+		}
+
+		/* ── Count-Modus ── */
+		.as-cai-sc-count {
+			font-size: 16px; font-weight: 700; color: #B19E63;
+			background: #25282B; padding: 4px 10px; border-radius: 8px;
+			border: 1px solid rgba(177, 158, 99, 0.2);
+		}
+
+		/* ── Bar-Modus ── */
+		.as-cai-sc-bar {
+			display: flex; flex-direction: column; gap: 4px; width: 100%;
+			background: #25282B; padding: 8px 12px; border-radius: 8px;
+			border: 1px solid rgba(177, 158, 99, 0.2);
+		}
 		.as-cai-sc-bar-track {
-			width: 100%; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden;
+			width: 100%; height: 6px; background: rgba(255, 255, 255, 0.1);
+			border-radius: 3px; overflow: hidden;
 		}
 		.as-cai-sc-bar-fill {
 			height: 100%; border-radius: 3px; transition: width 0.5s ease;
 		}
-		.as-cai-sc-bar-label { font-size: 12px; color: #6b7280; }
+		.as-cai-sc-bar-label { font-size: 12px; color: rgba(248, 248, 248, 0.6); }
 
-		/* Countdown Badge — font-size wird per inline style gesetzt */
+		/* ── Countdown — font-size per inline style ── */
 		.as-cai-sc-countdown {
 			display: inline-flex; align-items: center; gap: 0.4em; flex-wrap: wrap;
-			padding: 0.35em 0.8em; border-radius: 20px; font-weight: 600;
+			padding: 5px 12px; border-radius: 8px; font-weight: 600;
 			line-height: 1.4; white-space: nowrap;
-			background: linear-gradient(135deg, #1e293b, #334155); color: #f8fafc;
+			background: #25282B; color: #F8F8F8;
+			border: 1px solid rgba(177, 158, 99, 0.2);
 		}
-		.as-cai-sc-cd-label { color: #94a3b8; font-weight: 500; }
+		.as-cai-sc-cd-label { color: rgba(248, 248, 248, 0.6); font-weight: 500; }
 		.as-cai-sc-cd-timer {
 			font-variant-numeric: tabular-nums;
 			letter-spacing: 0.5px;
@@ -311,7 +357,7 @@ class AS_CAI_Shortcodes {
 			font-weight: 700;
 		}
 		.as-cai-sc-cd-timer [data-unit] { min-width: 1.2em; display: inline-block; text-align: center; }
-		.as-cai-sc-cd-date { color: #64748b; font-weight: 400; font-size: 0.9em; }
+		.as-cai-sc-cd-date { color: rgba(248, 248, 248, 0.5); font-weight: 400; font-size: 0.9em; }
 
 		/* Wenn Countdown abgelaufen — sanfter Übergang */
 		.as-cai-sc-countdown.expired { display: none; }
@@ -443,21 +489,22 @@ JS;
 
 		$html = self::render_output( $data, $display );
 
-		// Include inline CSS for preview.
+		// Include inline CSS for preview — einheitliches Dark Theme.
 		$css = '<style>
-		.as-cai-sc { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-		.as-cai-sc-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; font-size: 13px; font-weight: 600; line-height: 1.4; white-space: nowrap; }
-		.as-cai-sc-status-available { background: #f0fdf4; color: #166534; }
-		.as-cai-sc-status-limited { background: #fffbeb; color: #92400e; }
-		.as-cai-sc-status-critical { background: #fef2f2; color: #991b1b; }
-		.as-cai-sc-status-reserved_full { background: #faf5ff; color: #6b21a8; }
-		.as-cai-sc-status-sold_out { background: #fef2f2; color: #991b1b; }
-		.as-cai-sc-text { font-size: 14px; font-weight: 500; }
-		.as-cai-sc-count { font-size: 18px; font-weight: 700; }
-		.as-cai-sc-bar { display: flex; flex-direction: column; gap: 4px; width: 100%; }
-		.as-cai-sc-bar-track { width: 100%; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; }
+		.as-cai-sc { font-family: inherit; -webkit-font-smoothing: antialiased; }
+		.as-cai-sc-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+		.as-cai-sc-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; line-height: 1.4; white-space: nowrap; background: #25282B; color: #F8F8F8; border: 1px solid rgba(177,158,99,0.2); }
+		.as-cai-sc-status-available { border-left: 3px solid #B19E63; }
+		.as-cai-sc-status-limited { border-left: 3px solid #B19E63; }
+		.as-cai-sc-status-critical { border-left: 3px solid #c4433e; }
+		.as-cai-sc-status-reserved_full { border-left: 3px solid #54595F; }
+		.as-cai-sc-status-sold_out { border-left: 3px solid #c4433e; }
+		.as-cai-sc-text { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #F8F8F8; background: #25282B; padding: 5px 12px; border-radius: 8px; border: 1px solid rgba(177,158,99,0.2); }
+		.as-cai-sc-count { font-size: 16px; font-weight: 700; color: #B19E63; background: #25282B; padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(177,158,99,0.2); }
+		.as-cai-sc-bar { display: flex; flex-direction: column; gap: 4px; width: 100%; background: #25282B; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(177,158,99,0.2); }
+		.as-cai-sc-bar-track { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
 		.as-cai-sc-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
-		.as-cai-sc-bar-label { font-size: 12px; color: #6b7280; }
+		.as-cai-sc-bar-label { font-size: 12px; color: rgba(248,248,248,0.6); }
 		</style>';
 
 		wp_send_json_success( array(
