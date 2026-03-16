@@ -641,10 +641,9 @@ class AS_CAI_Status_Display {
 			border: none;
 			border-radius: 0;
 			box-shadow: none;
-			padding: 0;
+			padding: 16px 0 16px 16px;
 			margin: 0;
 			border-left: 3px solid;
-			padding-left: 16px;
 		}
 
 		/* ── BuyBox Countdown — Prominent ── */
