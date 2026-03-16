@@ -841,6 +841,30 @@ class AS_CAI_Status_Display {
 			width: 100%;
 		}
 
+		/* Stachethemes Farben auf Gold (#B19E63) überschreiben */
+		:root {
+			--stachesepl-accent-color: #B19E63;
+			--stachesepl-accent-color-20: rgba(177, 158, 99, 0.2);
+			--stachesepl-select-seat-button-background-color: #B19E63;
+			--stachesepl-select-seat-button-color: #fff;
+			--stachesepl-select-seat-button-hover-background-color: #9A8A56;
+			--stachesepl-select-seat-button-hover-color: #fff;
+			--stachesepl-btn-primary-bg: #B19E63;
+			--stachesepl-btn-primary-hover: #9A8A56;
+			--stachesepl-btn-secondary-bg: rgba(177, 158, 99, 0.08);
+			--stachesepl-btn-secondary-hover: rgba(177, 158, 99, 0.14);
+			--stachesepl-btn-secondary-text: #B19E63;
+			--stachesepl-btn-secondary-text-hover: #B19E63;
+			--stachesepl-view-cart-button-background-color: rgba(177, 158, 99, 0.08);
+			--stachesepl-view-cart-button-color: #B19E63;
+			--stachesepl-view-cart-button-hover-background-color: rgba(177, 158, 99, 0.14);
+			--stachesepl-view-cart-button-hover-color: #B19E63;
+			--stachesepl-cart-timer-color: #B19E63;
+			--stachesepl-cart-timer-critical-color: #B19E63;
+			--stachesepl-cart-timer-text-color: #B19E63;
+			--stachesepl-cart-timer-background-color: rgba(177, 158, 99, 0.08);
+		}
+
 		/* ── BuyBox Countdown — Prominent ── */
 		.as-cai-buybox-countdown {
 			background: rgba(177, 158, 99, 0.08);
