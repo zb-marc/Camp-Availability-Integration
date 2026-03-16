@@ -60,6 +60,32 @@ class AS_CAI_Status_Display {
 
 		// Stachethemes i18n-Strings kontextabhängig anpassen (Parzelle → Zimmer/Bungalow).
 		add_filter( 'gettext', array( $this, 'filter_stachethemes_seat_label' ), 10, 3 );
+
+		// Stachethemes Cart/Checkout: "Parzellen-ID" → kontextabhängig.
+		add_filter( 'woocommerce_get_item_data', array( $this, 'filter_cart_item_seat_label' ), 20, 2 );
+
+		// Stachethemes Order-Seiten: "Parzellen-ID" vor dem Render setzen.
+		add_action( 'woocommerce_order_item_meta_start', array( $this, 'set_current_order_item_product' ), 5, 3 );
+		add_action( 'woocommerce_after_order_itemmeta', array( $this, 'set_current_order_item_product_admin' ), 5, 3 );
+	}
+
+	/** @var WC_Product|null Temporäres Produkt für gettext-Filter auf Order-Seiten. */
+	private $current_order_item_product = null;
+
+	/**
+	 * Setzt temporär das Produkt für den gettext-Filter (Frontend Order-Seite).
+	 */
+	public function set_current_order_item_product( $item_id, $item, $order ) {
+		$product_id = $item->get_product_id();
+		$this->current_order_item_product = $product_id ? wc_get_product( $product_id ) : null;
+	}
+
+	/**
+	 * Setzt temporär das Produkt für den gettext-Filter (Admin Order-Seite).
+	 */
+	public function set_current_order_item_product_admin( $item_id, $item, $null ) {
+		$product_id = $item->get_product_id();
+		$this->current_order_item_product = $product_id ? wc_get_product( $product_id ) : null;
 	}
 
 	/**
@@ -89,13 +115,20 @@ class AS_CAI_Status_Display {
 			return $translation;
 		}
 
-		// Nur auf Produktseiten / wenn ein Produkt geladen ist.
+		// Produkt ermitteln: global $product (Produktseite) oder Order-Item-Kontext.
 		global $product;
-		if ( ! $product || ! is_a( $product, 'WC_Product' ) ) {
+		$context_product = null;
+		if ( $product && is_a( $product, 'WC_Product' ) ) {
+			$context_product = $product;
+		} elseif ( $this->current_order_item_product ) {
+			$context_product = $this->current_order_item_product;
+		}
+
+		if ( ! $context_product ) {
 			return $translation;
 		}
 
-		$unit_type = self::get_unit_type( $product );
+		$unit_type = self::get_unit_type( $context_product );
 		$singular  = $unit_type['singular']; // z.B. "Zimmer", "Bungalow", "Parzelle"
 		$plural    = $unit_type['plural'];   // z.B. "Zimmer", "Bungalows", "Parzellen"
 
@@ -108,6 +141,7 @@ class AS_CAI_Status_Display {
 		$replacements = array(
 			'Seat'              => $singular,                  // "Seat" → "Zimmer"
 			'seat'              => mb_strtolower( $singular ),
+			'Seat ID'           => $singular . '-ID',          // "Seat ID" → "Zimmer-ID"
 			'No seats selected' => 'Keine ' . $plural . ' ausgewählt',
 			'Seat selected'     => $singular . ' ausgewählt',
 			'Select Seat'       => $singular . ' auswählen',
@@ -133,6 +167,46 @@ class AS_CAI_Status_Display {
 		}
 
 		return $translation;
+	}
+
+	/**
+	 * Filter: Cart/Checkout "Parzellen-ID" Label kontextabhängig anpassen.
+	 *
+	 * Stachethemes fügt bei Priorität 10 ein Item-Data mit name="Parzellen-ID" hinzu.
+	 * Wir ändern das Label basierend auf dem Produktnamen des Cart-Items.
+	 *
+	 * @param array $item_data Cart item data array.
+	 * @param array $cart_item Cart item.
+	 * @return array
+	 */
+	public function filter_cart_item_seat_label( $item_data, $cart_item ) {
+		if ( empty( $cart_item['seat_data'] ) || empty( $cart_item['product_id'] ) ) {
+			return $item_data;
+		}
+
+		$product   = wc_get_product( $cart_item['product_id'] );
+		if ( ! $product ) {
+			return $item_data;
+		}
+
+		$unit_type = self::get_unit_type( $product );
+		$singular  = $unit_type['singular'];
+
+		// Wenn es schon Parzelle ist, nichts ändern.
+		if ( 'Parzelle' === $singular ) {
+			return $item_data;
+		}
+
+		// Die übersetzung von "Seat ID" finden und ersetzen.
+		$seat_id_translation = esc_html__( 'Seat ID', 'stachethemes-seat-planner' );
+		foreach ( $item_data as &$data ) {
+			if ( isset( $data['name'] ) && $data['name'] === $seat_id_translation ) {
+				$data['name'] = esc_html( $singular . '-ID' );
+			}
+		}
+		unset( $data );
+
+		return $item_data;
 	}
 
 	/**
