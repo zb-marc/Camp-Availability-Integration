@@ -38,20 +38,18 @@
 			e.preventDefault();
 			var type = $(this).data('product-type');
 			if (type === 'auditorium') {
-				// Find the Stachethemes Seat Planner button root (React component).
-				var $seatRoot = $('.stachesepl-add-to-cart-button-root');
-				if ($seatRoot.length) {
-					// Use native click (not jQuery trigger) — React uses synthetic events
-					// and won't respond to jQuery .trigger('click').
-					var clickTarget = $seatRoot.find('.stachesepl-select-seat-placeholder, button, [role="button"], .stachesepl-date-time-input-placeholder')[0];
-					if (!clickTarget) {
-						clickTarget = $seatRoot[0];
+				// The Stachethemes Seat Planner renders a React <button> with
+				// class "stachesepl-select-seats-button" inside the root.
+				// Its onClick calls setModalOpen(true) to open the seat map modal.
+				var $selectBtn = $('.stachesepl-select-seats-button');
+				if ($selectBtn.length) {
+					$selectBtn[0].click();
+				} else {
+					// Fallback: try the root container itself.
+					var $seatRoot = $('.stachesepl-add-to-cart-button-root');
+					if ($seatRoot.length) {
+						$seatRoot[0].click();
 					}
-					if (clickTarget) {
-						clickTarget.click();
-					}
-					// Scroll into view so user sees the modal context.
-					$('html, body').animate({ scrollTop: $seatRoot.first().offset().top - 80 }, 600);
 				}
 			} else {
 				var $form = $('form.cart');
