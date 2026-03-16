@@ -61,8 +61,13 @@ function asCaiAdminApp() {
 		statsLoaded: false,
 
 		init() {
-			this.loadStats();
-			setInterval(() => this.loadStats(), 30000);
+			// Only load stats on the dashboard page to avoid unnecessary AJAX calls.
+			const params = new URLSearchParams(window.location.search);
+			const page = params.get('page');
+			if ( page === 'bg-camp-availability' ) {
+				this.loadStats();
+				setInterval(() => this.loadStats(), 60000);
+			}
 		},
 
 		async loadStats() {

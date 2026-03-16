@@ -1203,21 +1203,25 @@
 
 /* --- Lists --- */
 .as-cai-prose ul {
-	margin: 10px 0;
+	margin: 6px 0 14px 0;
 	padding-left: 0;
 	list-style: none;
 }
 .as-cai-prose ul > li {
 	position: relative;
-	padding-left: 20px;
-	margin-bottom: 6px;
+	padding: 1px 0 1px 20px;
+	margin-bottom: 1px;
+	line-height: 1.55;
 }
 .as-cai-prose ul > li::before {
 	content: '•';
 	position: absolute;
 	left: 4px;
+	top: 1px;
 	color: var(--as-primary);
 	font-weight: 700;
+	font-size: 15px;
+	line-height: 1.55;
 }
 
 /* Nested Lists */
