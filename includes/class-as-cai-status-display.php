@@ -380,12 +380,6 @@ class AS_CAI_Status_Display {
 				<div class="as-cai-buybox-description">
 					<?php echo wp_kses_post( wpautop( $product->get_description() ) ); ?>
 				</div>
-
-				<?php if ( $category_html ) : ?>
-					<div class="as-cai-buybox-category">
-						<strong>Event</strong> <?php echo wp_kses_post( $category_html ); ?>
-					</div>
-				<?php endif; ?>
 			</div>
 
 			<!-- Rechte Spalte -->
@@ -396,6 +390,19 @@ class AS_CAI_Status_Display {
 					<?php else : ?>
 						<?php $this->render_status_box( $product_id, true ); ?>
 					<?php endif; ?>
+				</div>
+			</div>
+
+			<!-- Footer-Zeile über volle Breite -->
+			<div class="as-cai-buybox-footer">
+				<?php if ( $category_html ) : ?>
+					<div class="as-cai-buybox-footer-left">
+						<strong>Event</strong> <?php echo wp_kses_post( $category_html ); ?>
+					</div>
+				<?php endif; ?>
+				<div class="as-cai-buybox-footer-right">
+					<span>Aktualisiert: <span class="update-time"><?php echo esc_html( wp_date( 'H:i:s' ) ); ?></span></span>
+					<span class="auto-refresh-indicator">&#9679; Auto-Refresh aktiv</span>
 				</div>
 			</div>
 		</div>
@@ -655,23 +662,6 @@ class AS_CAI_Status_Display {
 			margin-bottom: 4px;
 		}
 
-		.as-cai-buybox-category {
-			margin-top: 16px;
-			padding-top: 16px;
-			border-top: 1px solid rgba(255, 255, 255, 0.08);
-			font-size: 14px;
-			color: rgba(248, 248, 248, 0.6);
-		}
-		.as-cai-buybox-category strong {
-			color: rgba(248, 248, 248, 0.5);
-			font-weight: 400;
-			margin-right: 4px;
-		}
-		.as-cai-buybox-category a {
-			color: #B19E63;
-			text-decoration: none;
-		}
-
 		/* Rechte Spalte */
 		.as-cai-buybox-right {
 			display: flex;
@@ -683,10 +673,42 @@ class AS_CAI_Status_Display {
 			flex-direction: column;
 			flex: 1;
 		}
+
+		/* Status-Meta in BuyBox verstecken — wird im Footer gerendert */
 		.as-cai-buybox .as-cai-status-box .status-meta {
-			margin-top: auto;
+			display: none;
+		}
+
+		/* Footer-Zeile über volle Breite */
+		.as-cai-buybox-footer {
+			grid-column: 1 / -1;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-top: 20px;
 			padding-top: 16px;
 			border-top: 1px solid rgba(255, 255, 255, 0.06);
+			font-size: 13px;
+			color: rgba(248, 248, 248, 0.5);
+		}
+		.as-cai-buybox-footer-left {
+			color: rgba(248, 248, 248, 0.6);
+		}
+		.as-cai-buybox-footer-left strong {
+			color: rgba(248, 248, 248, 0.4);
+			font-weight: 400;
+			margin-right: 4px;
+		}
+		.as-cai-buybox-footer-left a {
+			color: #B19E63;
+			text-decoration: none;
+		}
+		.as-cai-buybox-footer-right {
+			color: rgba(248, 248, 248, 0.4);
+			font-size: 12px;
+		}
+		.as-cai-buybox-footer-right .auto-refresh-indicator {
+			margin-left: 12px;
 		}
 
 		/* Preis innerhalb Status-Box */
@@ -827,6 +849,11 @@ class AS_CAI_Status_Display {
 			}
 			.as-cai-buybox-cd-unit {
 				min-width: 44px;
+			}
+			.as-cai-buybox-footer {
+				flex-direction: column;
+				gap: 8px;
+				align-items: flex-start;
 			}
 		}
 		';
