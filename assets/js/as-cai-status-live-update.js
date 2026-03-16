@@ -33,29 +33,13 @@
 			self.showNotifyPrompt(productId);
 		});
 
-		// CTA-Button: Open Seat Planner modal (auditorium) or add-to-cart (simple).
+		// CTA-Button: Click the standard WooCommerce "Add to Cart" button.
+		// Stachethemes Seat Planner hooks into this and opens its modal automatically.
 		$(document).on('click', '.as-cai-cta-button', function (e) {
 			e.preventDefault();
-			var type = $(this).data('product-type');
-			if (type === 'auditorium') {
-				// The Stachethemes Seat Planner renders a React <button> with
-				// class "stachesepl-select-seats-button" inside the root.
-				// Its onClick calls setModalOpen(true) to open the seat map modal.
-				var $selectBtn = $('.stachesepl-select-seats-button');
-				if ($selectBtn.length) {
-					$selectBtn[0].click();
-				} else {
-					// Fallback: try the root container itself.
-					var $seatRoot = $('.stachesepl-add-to-cart-button-root');
-					if ($seatRoot.length) {
-						$seatRoot[0].click();
-					}
-				}
-			} else {
-				var $form = $('form.cart');
-				if ($form.length) {
-					$form.find('.single_add_to_cart_button').trigger('click');
-				}
+			var $addToCart = $('.single_add_to_cart_button');
+			if ($addToCart.length) {
+				$addToCart[0].click();
 			}
 		});
 	};

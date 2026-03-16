@@ -340,17 +340,10 @@
 	50% { box-shadow: 0 0 0 8px rgba(177, 158, 99, 0); }
 }
 
-/* Stachethemes-Button visuell verstecken — CTA in Status-Box ist der einzige Button.
-   opacity:0 + height:0 statt display:none damit der React-Button (.stachesepl-select-seats-button)
-   im DOM bleibt und per .click() das Seat Planner Modal öffnen kann. */
+/* Stachethemes-Button verstecken — CTA in Status-Box ist der einzige Button */
 .as-cai-status-box ~ .stachesepl-single-add-to-cart-button-wrapper,
 .as-cai-status-box ~ .stachesepl-add-to-cart-button-wrapper {
-	opacity: 0 !important;
-	height: 0 !important;
-	overflow: hidden !important;
-	pointer-events: none !important;
-	margin: 0 !important;
-	padding: 0 !important;
+	display: none !important;
 }
 
 .as-cai-notify-button {
