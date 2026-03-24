@@ -28,6 +28,9 @@ class AS_CAI_Roles {
 
 		// Patch Stachethemes menu caps so Camp Manager can access Seat Planner.
 		add_action( 'admin_menu', array( $this, 'patch_stachethemes_menu_caps' ), 999 );
+
+		// Grant manage_options dynamically for Stachethemes pages only.
+		add_filter( 'user_has_cap', array( $this, 'grant_stachethemes_access' ), 10, 4 );
 	}
 
 	/**
@@ -114,7 +117,7 @@ class AS_CAI_Roles {
 	 * Stachethemes hardcodes 'manage_options' for its admin menu,
 	 * but all AJAX handlers use 'manage_woocommerce'. We patch the
 	 * menu globals so Camp Manager (with manage_woocommerce) can
-	 * access the Seat Planner pages.
+	 * see the Seat Planner menu items.
 	 *
 	 * @since 1.3.79
 	 */
@@ -135,5 +138,63 @@ class AS_CAI_Roles {
 				$submenu['stachesepl'][ $index ][1] = 'manage_woocommerce';
 			}
 		}
+	}
+
+	/**
+	 * Dynamically grant 'manage_options' to users with 'manage_woocommerce'
+	 * when they are on a Stachethemes Seat Planner admin page or AJAX call.
+	 *
+	 * This is needed because Stachethemes checks manage_options in its
+	 * page rendering and settings handler. We scope this tightly to
+	 * Stachethemes context only — Camp Manager will NOT gain access to
+	 * WordPress Settings, Permalinks, or other manage_options pages.
+	 *
+	 * @since 1.3.79
+	 *
+	 * @param array $allcaps All capabilities of the user.
+	 * @param array $caps    Required capabilities for the check.
+	 * @param array $args    Additional arguments (capability name, user ID, etc.).
+	 * @param WP_User $user  The user object.
+	 * @return array
+	 */
+	public function grant_stachethemes_access( $allcaps, $caps, $args, $user = null ) {
+		// Only intervene when manage_options is being checked.
+		if ( ! in_array( 'manage_options', $caps, true ) ) {
+			return $allcaps;
+		}
+
+		// User already has manage_options — nothing to do.
+		if ( ! empty( $allcaps['manage_options'] ) ) {
+			return $allcaps;
+		}
+
+		// Only grant for users with manage_woocommerce.
+		if ( empty( $allcaps['manage_woocommerce'] ) ) {
+			return $allcaps;
+		}
+
+		// Check if we're in a Stachethemes context.
+		$is_stachethemes = false;
+
+		// Admin page: ?page=stachesepl or subpages.
+		if ( is_admin() && isset( $_GET['page'] ) && 'stachesepl' === $_GET['page'] ) {
+			$is_stachethemes = true;
+		}
+
+		// AJAX calls from Stachethemes.
+		if ( wp_doing_ajax() && isset( $_REQUEST['action'] ) && strpos( $_REQUEST['action'], 'stachesepl' ) === 0 ) {
+			$is_stachethemes = true;
+		}
+
+		// Menu rendering: check if we're building the admin menu.
+		if ( is_admin() && doing_action( 'admin_menu' ) ) {
+			$is_stachethemes = true;
+		}
+
+		if ( $is_stachethemes ) {
+			$allcaps['manage_options'] = true;
+		}
+
+		return $allcaps;
 	}
 }
