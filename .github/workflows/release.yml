@@ -1,0 +1,71 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: [self-hosted, linux, ARM64]
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Version auslesen
+        id: version
+        run: |
+          VERSION=$(grep -oP "Version:\s*\K[\d.]+" as-camp-availability-integration.php | head -1)
+          if [ -z "$VERSION" ]; then
+            echo "::error::Keine Version in as-camp-availability-integration.php gefunden"
+            exit 1
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Plugin-Version: $VERSION"
+
+      - name: Pruefen ob Release existiert
+        id: check
+        run: |
+          if gh release view "v${{ steps.version.outputs.version }}" > /dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Release v${{ steps.version.outputs.version }} existiert bereits — ueberspringe"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: ZIP erstellen
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          PLUGIN_SLUG="camp-availability-integration"
+          mkdir -p /tmp/$PLUGIN_SLUG
+          rsync -a \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.reference' \
+            --exclude='node_modules' \
+            --exclude='vendor' \
+            --exclude='.gitignore' \
+            --exclude='.gitattributes' \
+            --exclude='.DS_Store' \
+            --exclude='*.md' \
+            --exclude='check-version.sh' \
+            . /tmp/$PLUGIN_SLUG/
+          cd /tmp && zip -r $PLUGIN_SLUG.zip $PLUGIN_SLUG/
+          mv /tmp/$PLUGIN_SLUG.zip $GITHUB_WORKSPACE/
+          echo "ZIP erstellt: $PLUGIN_SLUG.zip"
+          unzip -l $GITHUB_WORKSPACE/$PLUGIN_SLUG.zip | head -20
+
+      - name: Release erstellen
+        if: steps.check.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
+          files: camp-availability-integration.zip
+          generate_release_notes: true
+          make_latest: true
